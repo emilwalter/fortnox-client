@@ -3,6 +3,7 @@
 export interface FortnoxClientOptions {
   accessToken: string;
 }
+
 export interface Approver {
   Id: number;
   Name: string;
@@ -49,6 +50,10 @@ export interface Voucher {
   ApprovalState: number;
 }
 
+export interface VoucherCollection {
+  Vouchers: Voucher[];
+}
+
 export interface FinancialYear {
   "@url": string;
   Id: number;
@@ -88,16 +93,22 @@ export interface Account {
   OpeningQuantities: OpeningQuantity[];
 }
 
-export interface CompanyInformation {
-  Address: string;
-  City: string;
-  CountryCode: string;
-  DatabaseNumber: number;
-  CompanyName: string;
-  OrganizationNumber: string;
-  VisitAddress: string;
-  VisitCity: string;
-  VisitCountryCode: string;
-  VisitZipCode: string;
-  ZipCode: string;
+export interface AccountCollection {
+  Accounts: Account[];
+}
+
+export interface CompanyInformationWrapper {
+  CompanyInformation: {
+    Address: string;
+    City: string;
+    CountryCode: string;
+    DatabaseNumber: number;
+    CompanyName: string;
+    OrganizationNumber: string;
+    VisitAddress: string;
+    VisitCity: string;
+    VisitCountryCode: string;
+    VisitZipCode: string;
+    ZipCode: string;
+  };
 }

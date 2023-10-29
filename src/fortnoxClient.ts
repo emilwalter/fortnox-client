@@ -2,11 +2,11 @@
 import axios from "axios";
 import type {
   VoucherSeriesCollection,
-  Voucher,
+  VoucherCollection, // Updated
   FinancialYearsCollection,
-  Account,
+  AccountCollection, // Updated
   FortnoxClientOptions,
-  CompanyInformation,
+  CompanyInformationWrapper, // Updated
 } from "./types";
 import { FortnoxError } from "./fortnoxError";
 
@@ -32,7 +32,8 @@ class FortnoxClient {
   public async getVouchers(
     fromDate?: string,
     toDate?: string
-  ): Promise<Voucher[]> {
+  ): Promise<VoucherCollection> {
+    // Updated
     let endpoint = "vouchers?";
 
     if (fromDate) {
@@ -46,14 +47,15 @@ class FortnoxClient {
     // Remove the trailing '&' or '?' if no parameters were added
     endpoint = endpoint.endsWith("&") ? endpoint.slice(0, -1) : endpoint;
 
-    return this.request<Voucher[]>(endpoint);
+    return this.request<VoucherCollection>(endpoint); // Updated
   }
 
   public async getFinancialYears(): Promise<FinancialYearsCollection> {
     return this.request("financialyears");
   }
 
-  public async getCompanyInformation(): Promise<CompanyInformation> {
+  public async getCompanyInformation(): Promise<CompanyInformationWrapper> {
+    // Updated
     return this.request("companyinformation");
   }
 
@@ -61,12 +63,13 @@ class FortnoxClient {
     accountNumberFrom: number,
     accountNumberTo: number,
     financialYear?: number
-  ): Promise<Account[]> {
+  ): Promise<AccountCollection> {
+    // Updated
     let endpoint = `accounts?accountnumberfrom=${accountNumberFrom}&accountnumberto=${accountNumberTo}`;
     if (financialYear) {
       endpoint += `&financialyear=${financialYear}`;
     }
-    return this.request<Account[]>(endpoint);
+    return this.request<AccountCollection>(endpoint); // Updated
   }
 
   private async request<T>(endpoint: string): Promise<T> {
