@@ -21,6 +21,7 @@ class FortnoxClient {
   private get headers() {
     return {
       Authorization: `Bearer ${this.accessToken}`,
+      "Content-Type": "application/json",
     };
   }
 
