@@ -2,7 +2,6 @@
 
 export interface FortnoxClientOptions {
   accessToken: string;
-  clientSecret: string;
 }
 export interface Approver {
   Id: number;
