@@ -33,7 +33,7 @@ class FortnoxClient {
   }
 
   public async getVouchers(): Promise<Voucher> {
-    return this.request("vouchers/");
+    return this.request("vouchers");
   }
 
   public async getFinancialYears(): Promise<FinancialYearsCollection> {
