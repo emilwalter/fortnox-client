@@ -76,7 +76,9 @@ class FortnoxClient {
       });
       return response.data;
     } catch (error: any) {
+      console.error(error);
       if (error.response) {
+        console.error("Error Response:", error.response);
         throw new FortnoxError(error.response.data, error.response.status);
       } else if (error.request) {
         throw new FortnoxError("No response received from Fortnox API");
