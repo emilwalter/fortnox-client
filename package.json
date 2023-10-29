@@ -1,0 +1,20 @@
+{
+  "name": "fortnox-client",
+  "version": "0.0.1",
+  "description": "Client for Fetching data from Fortnox",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": [
+    "fortnox",
+    "api",
+    "client"
+  ],
+  "author": "Emil Walter",
+  "license": "Commercial",
+  "devDependencies": {
+    "typescript": "^5.2.2"
+  }
+}
