@@ -25,7 +25,6 @@ import FortnoxClient from '@waltermedia/fortnox-client';
 
 const fortnoxClient = new FortnoxClient({
   accessToken: 'your-access-token',
-  clientSecret: 'your-client-secret',
 });
 
 // Fetch account data
