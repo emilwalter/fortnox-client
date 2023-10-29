@@ -6,6 +6,7 @@ import type {
   FinancialYearsCollection,
   Account,
   FortnoxClientOptions,
+  CompanyInformation,
 } from "./types";
 import { FortnoxError } from "./fortnoxError";
 
@@ -54,6 +55,10 @@ class FortnoxClient {
 
   public async getFinancialYears(): Promise<FinancialYearsCollection> {
     return this.request("financialyears");
+  }
+
+  public async getCompanyInformation(): Promise<CompanyInformation> {
+    return this.request("companyinformation");
   }
 
   public async getAccounts(

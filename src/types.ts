@@ -88,3 +88,17 @@ export interface Account {
   QuantityUnit: string;
   OpeningQuantities: OpeningQuantity[];
 }
+
+export interface CompanyInformation {
+  Address: string;
+  City: string;
+  CountryCode: string;
+  DatabaseNumber: number;
+  CompanyName: string;
+  OrganizationNumber: string;
+  VisitAddress: string;
+  VisitCity: string;
+  VisitCountryCode: string;
+  VisitZipCode: string;
+  ZipCode: string;
+}
