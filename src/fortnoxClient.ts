@@ -72,13 +72,15 @@ class FortnoxClient {
   private async request<T>(endpoint: string): Promise<T> {
     try {
       const response = await axios.get<T>(`${this.baseURL}${endpoint}`, {
-        headers: this.headers,
+        headers: {
+          ...this.headers,
+          Accept: "application/json",
+        },
       });
       return response.data;
     } catch (error: any) {
       console.error(error);
       if (error.response) {
-        console.error("Error Response:", error.response);
         throw new FortnoxError(error.response.data, error.response.status);
       } else if (error.request) {
         throw new FortnoxError("No response received from Fortnox API");
