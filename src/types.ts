@@ -1,4 +1,9 @@
 // src/types.ts
+
+export interface FortnoxClientOptions {
+  accessToken: string;
+  clientSecret: string;
+}
 export interface Approver {
   Id: number;
   Name: string;
@@ -56,4 +61,30 @@ export interface FinancialYear {
 
 export interface FinancialYearsCollection {
   FinancialYears: FinancialYear[];
+}
+
+export interface OpeningQuantity {
+  Project: string;
+  Balance: number;
+}
+
+export interface Account {
+  "@url": string;
+  Active: boolean;
+  BalanceBroughtForward: number;
+  CostCenter: string;
+  CostCenterSettings: string;
+  Description: string;
+  Number: number;
+  Project: string;
+  ProjectSettings: string;
+  SRU: number;
+  Year: number;
+  VATCode: string;
+  BalanceCarriedForward: number;
+  TransactionInformation: string;
+  TransactionInformationSettings: string;
+  QuantitySettings: string;
+  QuantityUnit: string;
+  OpeningQuantities: OpeningQuantity[];
 }

@@ -4,12 +4,10 @@ import type {
   VoucherSeriesCollection,
   Voucher,
   FinancialYearsCollection,
+  Account,
+  FortnoxClientOptions,
 } from "./types";
-
-interface FortnoxClientOptions {
-  accessToken: string;
-  clientSecret: string;
-}
+import { FortnoxError } from "./fortnoxError";
 
 class FortnoxClient {
   private accessToken: string;
@@ -42,11 +40,25 @@ class FortnoxClient {
     return this.request("financialyears");
   }
 
+  public async getAccounts(): Promise<Account> {
+    return this.request<Account>("accounts/");
+  }
+
   private async request<T>(endpoint: string): Promise<T> {
-    const response = await axios.get<T>(`${this.baseURL}${endpoint}`, {
-      headers: this.headers,
-    });
-    return response.data;
+    try {
+      const response = await axios.get<T>(`${this.baseURL}${endpoint}`, {
+        headers: this.headers,
+      });
+      return response.data;
+    } catch (error: any) {
+      if (error.response) {
+        throw new FortnoxError(error.response.data, error.response.status);
+      } else if (error.request) {
+        throw new FortnoxError("No response received from Fortnox API");
+      } else {
+        throw new FortnoxError(error.message);
+      }
+    }
   }
 }
 
