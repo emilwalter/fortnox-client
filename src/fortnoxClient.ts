@@ -12,20 +12,15 @@ import { FortnoxError } from "./fortnoxError";
 
 class FortnoxClient {
   private accessToken: string;
-  private clientSecret: string;
   private baseURL: string = "https://api.fortnox.se/3/";
 
   constructor(options: FortnoxClientOptions) {
     this.accessToken = options.accessToken;
-    this.clientSecret = options.clientSecret;
   }
 
   private get headers() {
     return {
-      "Access-Token": this.accessToken,
-      "Client-Secret": this.clientSecret,
-      "Content-Type": "application/json",
-      Accept: "application/json",
+      Authorization: `Bearer ${this.accessToken}`,
     };
   }
 
