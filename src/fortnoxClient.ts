@@ -42,38 +42,14 @@ class FortnoxClient {
 
   public async getAccounts(
     accountNumberFrom: number,
-    accountNumberTo: number
+    accountNumberTo: number,
+    financialYear?: number
   ): Promise<Account[]> {
-    const endpoint = `accounts?accountnumberfrom=${accountNumberFrom}&accountnumberto=${accountNumberTo}`;
+    let endpoint = `accounts?accountnumberfrom=${accountNumberFrom}&accountnumberto=${accountNumberTo}`;
+    if (financialYear) {
+      endpoint += `&financialyear=${financialYear}`;
+    }
     return this.request<Account[]>(endpoint);
-  }
-
-  public getAssetsAccounts(): Promise<Account[]> {
-    return this.getAccounts(1000, 1999);
-  }
-
-  public getEquityAndLiabilitiesAccounts(): Promise<Account[]> {
-    return this.getAccounts(2000, 2999);
-  }
-
-  public getRevenueAccounts(): Promise<Account[]> {
-    return this.getAccounts(3000, 3999);
-  }
-
-  public getMaterialCostsAccounts(): Promise<Account[]> {
-    return this.getAccounts(4000, 4999);
-  }
-
-  public getOtherCostsAccounts(): Promise<Account[]> {
-    return this.getAccounts(5000, 6999);
-  }
-
-  public getPersonnelAccounts(): Promise<Account[]> {
-    return this.getAccounts(7000, 7999);
-  }
-
-  public getFinancialAccounts(): Promise<Account[]> {
-    return this.getAccounts(8000, 8999);
   }
 
   private async request<T>(endpoint: string): Promise<T> {
