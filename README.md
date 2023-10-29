@@ -21,7 +21,7 @@ yarn add @waltermedia/fortnox-client
 Import the FortnoxClient class from the package and create a new instance with your Fortnox API credentials:
 
 ```
-import FortnoxClient from '@waltermedia/fortnox-client';
+import { FortnoxClient } from '@waltermedia/fortnox-client';
 
 const fortnoxClient = new FortnoxClient({
   accessToken: 'your-access-token',
