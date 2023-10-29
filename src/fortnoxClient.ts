@@ -32,8 +32,24 @@ class FortnoxClient {
     return this.request("voucherseries");
   }
 
-  public async getVouchers(): Promise<Voucher> {
-    return this.request("vouchers");
+  public async getVouchers(
+    fromDate?: string,
+    toDate?: string
+  ): Promise<Voucher[]> {
+    let endpoint = "vouchers?";
+
+    if (fromDate) {
+      endpoint += `fromdate=${fromDate}&`;
+    }
+
+    if (toDate) {
+      endpoint += `todate=${toDate}&`;
+    }
+
+    // Remove the trailing '&' or '?' if no parameters were added
+    endpoint = endpoint.endsWith("&") ? endpoint.slice(0, -1) : endpoint;
+
+    return this.request<Voucher[]>(endpoint);
   }
 
   public async getFinancialYears(): Promise<FinancialYearsCollection> {
