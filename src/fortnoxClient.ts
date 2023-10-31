@@ -40,31 +40,52 @@ class FortnoxClient {
     let results: any[] = [];
     let totalPages: number;
 
-    do {
+    // Initial request without the page parameter
+    let response = await this.basicRequest<{
+      MetaInformation: any;
+      [key: string]: any;
+    }>(baseEndpoint);
+
+    // Extract the key that is not 'MetaInformation' from the response
+    const dataKey = Object.keys(response).find(
+      (key) => key !== "MetaInformation"
+    );
+
+    if (dataKey) {
+      const data = response[dataKey];
+      // If the data is an array, concatenate
+      if (Array.isArray(data)) {
+        results = results.concat(data);
+      } else {
+        // If it's an object, directly return that object
+        return data as T;
+      }
+    }
+
+    totalPages = response.MetaInformation["@TotalPages"];
+
+    // If totalPages is 1, then we've already fetched all the data in the initial request
+    if (totalPages === 1) {
+      return results as unknown as T;
+    }
+
+    // Start from the second page if there are more pages
+    currentPage++;
+
+    while (currentPage <= totalPages) {
       const endpoint = `${baseEndpoint}&page=${currentPage}`;
-      const response = await this.basicRequest<{
+      response = await this.basicRequest<{
         MetaInformation: any;
         [key: string]: any;
       }>(endpoint);
 
-      // Extract the key that is not 'MetaInformation' from the response
-      const dataKey = Object.keys(response).find(
-        (key) => key !== "MetaInformation"
-      );
       if (dataKey) {
         const data = response[dataKey];
-        // If the data is an array, concatenate
-        if (Array.isArray(data)) {
-          results = results.concat(data);
-        } else {
-          // If it's an object, directly return that object
-          return data as T;
-        }
+        results = results.concat(data);
       }
 
-      totalPages = response.MetaInformation["@TotalPages"];
       currentPage++;
-    } while (currentPage <= totalPages);
+    }
 
     return results as unknown as T;
   }
