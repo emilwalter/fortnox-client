@@ -37,7 +37,8 @@ class FortnoxClient {
     limit: number = 500,
     paginate: boolean = false
   ): Promise<T> {
-    let results: any[] = [];
+    let results: any = {}; // Initialize an empty object
+
     const limitParam = limit ? `&limit=${limit}` : "";
     let response = await this.basicRequest<{
       MetaInformation: any;
@@ -49,16 +50,11 @@ class FortnoxClient {
     );
 
     if (dataKey) {
-      const data = response[dataKey];
-      if (Array.isArray(data)) {
-        results = results.concat(data);
-      } else {
-        return data as T;
-      }
+      results[dataKey] = response[dataKey]; // Directly set the dataKey property
     }
 
     if (!paginate) {
-      return results as unknown as T;
+      return results as T;
     }
 
     let currentPage = 1;
@@ -66,21 +62,20 @@ class FortnoxClient {
     currentPage++;
 
     while (currentPage <= totalPages) {
-      const endpoint = `${baseEndpoint}&page=${currentPage}&limit=${limit}`;
+      const endpoint = `${baseEndpoint}&page=${currentPage}${limitParam}`;
       response = await this.basicRequest<{
         MetaInformation: any;
         [key: string]: any;
       }>(endpoint);
 
       if (dataKey) {
-        const data = response[dataKey];
-        results = results.concat(data);
+        results[dataKey] = results[dataKey].concat(response[dataKey]);
       }
 
       currentPage++;
     }
 
-    return results as unknown as T;
+    return results as T;
   }
 
   public async getVouchers(
