@@ -13,13 +13,19 @@ import type {
   VoucherSeries,
 } from "./types";
 import { FortnoxError } from "./fortnoxError";
+import Bottleneck from "bottleneck";
 
 class FortnoxClient {
   private accessToken: string;
   private baseURL: string = "https://api.fortnox.se/3/";
+  private limiter: Bottleneck;
 
   constructor(options: FortnoxClientOptions) {
     this.accessToken = options.accessToken;
+    this.limiter = new Bottleneck({
+      maxConcurrent: 1,
+      minTime: 200, // Adjust as needed
+    });
   }
 
   private get headers() {
@@ -143,24 +149,26 @@ class FortnoxClient {
   }
 
   private async basicRequest<T>(endpoint: string): Promise<T> {
-    try {
-      const response = await axios.get<T>(`${this.baseURL}${endpoint}`, {
-        headers: {
-          ...this.headers,
-          Accept: "application/json",
-        },
-      });
-      return response.data;
-    } catch (error: any) {
-      console.error(error);
-      if (error.response) {
-        throw new FortnoxError(error.response.data, error.response.status);
-      } else if (error.request) {
-        throw new FortnoxError("No response received from Fortnox API");
-      } else {
-        throw new FortnoxError(error.message);
+    return this.limiter.schedule(async () => {
+      try {
+        const response = await axios.get<T>(`${this.baseURL}${endpoint}`, {
+          headers: {
+            ...this.headers,
+            Accept: "application/json",
+          },
+        });
+        return response.data;
+      } catch (error: any) {
+        console.error(error);
+        if (error.response) {
+          throw new FortnoxError(error.response.data, error.response.status);
+        } else if (error.request) {
+          throw new FortnoxError("No response received from Fortnox API");
+        } else {
+          throw new FortnoxError(error.message);
+        }
       }
-    }
+    });
   }
 }
 
