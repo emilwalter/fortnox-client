@@ -90,6 +90,14 @@ class FortnoxClient {
     return results as unknown as T;
   }
 
+  public async getVoucherDetails(
+    voucherSeries: string,
+    voucherNumber: number
+  ): Promise<Voucher> {
+    const endpoint = `vouchers/${voucherSeries}/${voucherNumber}`;
+    return this.basicRequest<Voucher>(endpoint);
+  }
+
   public async getAllVouchers(
     fromDate?: string,
     toDate?: string
@@ -108,6 +116,36 @@ class FortnoxClient {
     endpoint = endpoint.endsWith("&") ? endpoint.slice(0, -1) : endpoint;
 
     return this.getAllPages<Voucher[]>(endpoint);
+  }
+
+  //expensive operation - use with care (to get all voucher rows for all vouchers)
+  public async getAllVouchersWithVoucherRows(
+    fromDate?: string,
+    toDate?: string
+  ): Promise<Voucher[]> {
+    let endpoint = "vouchers?";
+
+    if (fromDate) {
+      endpoint += `fromdate=${fromDate}&`;
+    }
+
+    if (toDate) {
+      endpoint += `todate=${toDate}&`;
+    }
+
+    // Remove the trailing '&' if no parameters were added
+    endpoint = endpoint.endsWith("&") ? endpoint.slice(0, -1) : endpoint;
+
+    const vouchersSummary = await this.getAllPages<Voucher[]>(endpoint);
+
+    // Now, fetch details for each voucher
+    const detailedVouchersPromises = vouchersSummary.map((voucher) =>
+      this.getVoucherDetails(voucher.VoucherSeries, voucher.VoucherNumber)
+    );
+
+    const detailedVouchers = await Promise.all(detailedVouchersPromises);
+
+    return detailedVouchers;
   }
 
   public async getVouchers(
