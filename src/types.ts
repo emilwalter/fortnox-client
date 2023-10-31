@@ -112,3 +112,11 @@ export interface CompanyInformationWrapper {
     ZipCode: string;
   };
 }
+
+export interface FortnoxAPIError {
+  ErrorInformation: {
+    error: number;
+    message: string;
+    code: number;
+  };
+}

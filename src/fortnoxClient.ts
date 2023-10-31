@@ -154,7 +154,11 @@ class FortnoxClient {
         return response.data;
       } catch (error: any) {
         if (error.response) {
-          throw new FortnoxError(error.response.data, error.response.status);
+          throw new FortnoxError(
+            error.response.data.ErrorInformation.message,
+            error.response.status,
+            error.response.data
+          );
         } else if (error.request) {
           throw new FortnoxError("No response received from Fortnox API");
         } else {
