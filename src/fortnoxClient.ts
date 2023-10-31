@@ -41,9 +41,10 @@ class FortnoxClient {
     let results: any = {}; // Initialize an empty object
 
     const limitParam = limit ? `limit=${limit}` : "";
-    const connector = baseEndpoint.includes("?") ? "&" : "?";
+    let connector = baseEndpoint.includes("?") ? "&" : "?";
     if (financialyear) {
       baseEndpoint += `${connector}financialyear=${financialyear}`;
+      connector = "&";
     }
     let response = await this.basicRequest<{
       MetaInformation: any;
