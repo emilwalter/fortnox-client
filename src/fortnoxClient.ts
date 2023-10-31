@@ -38,41 +38,45 @@ class FortnoxClient {
     financialyear?: number,
     paginate: boolean = false
   ): Promise<T> {
-    let results: any = {}; // Initialize an empty object
+    let results: any = {};
 
-    const limitParam = limit ? `limit=${limit}` : "";
-    let connector = baseEndpoint.includes("?") ? "&" : "?";
-    if (financialyear) {
-      baseEndpoint += `${connector}financialyear=${financialyear}`;
-      connector = "&";
-    }
+    // Create a list of query params and their values.
+    const queryParams: string[] = [];
+    if (limit) queryParams.push(`limit=${limit}`);
+    if (financialyear) queryParams.push(`financialyear=${financialyear}`);
+
+    // Join the query params using '&' and append to baseEndpoint.
+    const finalEndpoint = queryParams.length
+      ? `${baseEndpoint}${
+          baseEndpoint.includes("?") ? "&" : "?"
+        }${queryParams.join("&")}`
+      : baseEndpoint;
+
     let response = await this.basicRequest<{
       MetaInformation: any;
       [key: string]: any;
-    }>(`${baseEndpoint}${connector}${limitParam}`);
+    }>(finalEndpoint);
 
     const dataKey = Object.keys(response).find(
       (key) => key !== "MetaInformation"
     );
 
     if (dataKey) {
-      results[dataKey] = response[dataKey]; // Directly set the dataKey property
+      results[dataKey] = response[dataKey];
     }
 
     if (!paginate) {
       return results as T;
     }
 
-    let currentPage = 1;
-    let totalPages = response.MetaInformation["@TotalPages"];
-    currentPage++;
+    let currentPage = 2; // Start from the second page, as the first page has already been fetched.
+    const totalPages = response.MetaInformation["@TotalPages"];
 
     while (currentPage <= totalPages) {
-      const endpoint = `${baseEndpoint}&page=${currentPage}${limitParam}`;
       response = await this.basicRequest<{
         MetaInformation: any;
         [key: string]: any;
-      }>(endpoint);
+      }>(`${finalEndpoint}&page=${currentPage}`);
 
       if (dataKey) {
         results[dataKey] = results[dataKey].concat(response[dataKey]);
