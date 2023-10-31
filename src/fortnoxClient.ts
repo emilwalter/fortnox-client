@@ -2,11 +2,15 @@
 import axios from "axios";
 import type {
   VoucherSeriesCollection,
-  VoucherCollection, // Updated
+  VoucherCollection,
   FinancialYearsCollection,
-  AccountCollection, // Updated
+  AccountCollection,
   FortnoxClientOptions,
-  CompanyInformationWrapper, // Updated
+  CompanyInformationWrapper,
+  Voucher,
+  Account,
+  FinancialYear,
+  VoucherSeries,
 } from "./types";
 import { FortnoxError } from "./fortnoxError";
 
@@ -25,15 +29,44 @@ class FortnoxClient {
     };
   }
 
-  public async getVoucherSeries(): Promise<VoucherSeriesCollection> {
-    return this.request("voucherseries");
+  private async getAllPages<T>(baseEndpoint: string): Promise<T> {
+    let currentPage = 1;
+    let results: any[] = [];
+    let totalPages: number;
+
+    do {
+      const endpoint = `${baseEndpoint}&page=${currentPage}`;
+      const response = await this.basicRequest<{
+        MetaInformation: any;
+        [key: string]: any;
+      }>(endpoint);
+
+      // Extract the key that is not 'MetaInformation' from the response
+      const dataKey = Object.keys(response).find(
+        (key) => key !== "MetaInformation"
+      );
+      if (dataKey) {
+        const data = response[dataKey];
+        // If the data is an array, concatenate
+        if (Array.isArray(data)) {
+          results = results.concat(data);
+        } else {
+          // If it's an object, directly return that object
+          return data as T;
+        }
+      }
+
+      totalPages = response.MetaInformation["@TotalPages"];
+      currentPage++;
+    } while (currentPage <= totalPages);
+
+    return results as unknown as T;
   }
 
-  public async getVouchers(
+  public async getAllVouchers(
     fromDate?: string,
     toDate?: string
-  ): Promise<VoucherCollection> {
-    // Updated
+  ): Promise<Voucher[]> {
     let endpoint = "vouchers?";
 
     if (fromDate) {
@@ -44,19 +77,57 @@ class FortnoxClient {
       endpoint += `todate=${toDate}&`;
     }
 
-    // Remove the trailing '&' or '?' if no parameters were added
+    // Remove the trailing '&' if no parameters were added
     endpoint = endpoint.endsWith("&") ? endpoint.slice(0, -1) : endpoint;
 
-    return this.request<VoucherCollection>(endpoint); // Updated
+    return this.getAllPages<Voucher[]>(endpoint);
+  }
+
+  public async getVouchers(
+    fromDate?: string,
+    toDate?: string
+  ): Promise<VoucherCollection> {
+    let endpoint = "vouchers?";
+    if (fromDate) {
+      endpoint += `fromdate=${fromDate}&`;
+    }
+    if (toDate) {
+      endpoint += `todate=${toDate}&`;
+    }
+    endpoint = endpoint.endsWith("&") ? endpoint.slice(0, -1) : endpoint;
+    return this.basicRequest<VoucherCollection>(endpoint);
+  }
+
+  public async getAllVoucherSeries(): Promise<VoucherSeries[]> {
+    return this.getAllPages<VoucherSeries[]>("voucherseries");
+  }
+
+  public async getVoucherSeries(): Promise<VoucherSeriesCollection> {
+    return this.basicRequest<VoucherSeriesCollection>("voucherseries");
+  }
+
+  public async getAllFinancialYears(): Promise<FinancialYear[]> {
+    return this.getAllPages<FinancialYear[]>("financialyears");
   }
 
   public async getFinancialYears(): Promise<FinancialYearsCollection> {
-    return this.request("financialyears");
+    return this.basicRequest<FinancialYearsCollection>("financialyears");
   }
 
   public async getCompanyInformation(): Promise<CompanyInformationWrapper> {
-    // Updated
-    return this.request("companyinformation");
+    return this.basicRequest<CompanyInformationWrapper>("companyinformation");
+  }
+
+  public async getAllAccounts(
+    accountNumberFrom: number,
+    accountNumberTo: number,
+    financialYear?: number
+  ): Promise<Account[]> {
+    let endpoint = `accounts?accountnumberfrom=${accountNumberFrom}&accountnumberto=${accountNumberTo}`;
+    if (financialYear) {
+      endpoint += `&financialyear=${financialYear}`;
+    }
+    return this.getAllPages<Account[]>(endpoint);
   }
 
   public async getAccounts(
@@ -64,15 +135,14 @@ class FortnoxClient {
     accountNumberTo: number,
     financialYear?: number
   ): Promise<AccountCollection> {
-    // Updated
     let endpoint = `accounts?accountnumberfrom=${accountNumberFrom}&accountnumberto=${accountNumberTo}`;
     if (financialYear) {
       endpoint += `&financialyear=${financialYear}`;
     }
-    return this.request<AccountCollection>(endpoint); // Updated
+    return this.basicRequest<AccountCollection>(endpoint);
   }
 
-  private async request<T>(endpoint: string): Promise<T> {
+  private async basicRequest<T>(endpoint: string): Promise<T> {
     try {
       const response = await axios.get<T>(`${this.baseURL}${endpoint}`, {
         headers: {
