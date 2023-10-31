@@ -35,12 +35,16 @@ class FortnoxClient {
   private async handlePagination<T>(
     baseEndpoint: string,
     limit: number = 500,
+    financialyear?: number,
     paginate: boolean = false
   ): Promise<T> {
     let results: any = {}; // Initialize an empty object
 
     const limitParam = limit ? `limit=${limit}` : "";
     const connector = baseEndpoint.includes("?") ? "&" : "?";
+    if (financialyear) {
+      baseEndpoint += `${connector}financialyear=${financialyear}`;
+    }
     let response = await this.basicRequest<{
       MetaInformation: any;
       [key: string]: any;
@@ -83,6 +87,7 @@ class FortnoxClient {
     fromDate?: string,
     toDate?: string,
     limit?: number,
+    financialyear?: number,
     paginate: boolean = false
   ): Promise<VoucherCollection> {
     let endpoint = "vouchers?";
@@ -94,7 +99,12 @@ class FortnoxClient {
     }
     endpoint = endpoint.endsWith("&") ? endpoint.slice(0, -1) : endpoint;
 
-    return this.handlePagination<VoucherCollection>(endpoint, limit, paginate);
+    return this.handlePagination<VoucherCollection>(
+      endpoint,
+      limit,
+      financialyear,
+      paginate
+    );
   }
 
   public async getVoucherDetails(
@@ -111,6 +121,7 @@ class FortnoxClient {
     return this.handlePagination<VoucherSeriesCollection>(
       "voucherseries",
       undefined,
+      undefined,
       paginate
     );
   }
@@ -120,6 +131,7 @@ class FortnoxClient {
   ): Promise<FinancialYearsCollection> {
     return this.handlePagination<FinancialYearsCollection>(
       "financialyears",
+      undefined,
       undefined,
       paginate
     );
@@ -140,7 +152,12 @@ class FortnoxClient {
     if (financialYear) {
       endpoint += `&financialyear=${financialYear}`;
     }
-    return this.handlePagination<AccountCollection>(endpoint, limit, paginate);
+    return this.handlePagination<AccountCollection>(
+      endpoint,
+      limit,
+      financialYear,
+      paginate
+    );
   }
 
   private async basicRequest<T>(endpoint: string): Promise<T> {
