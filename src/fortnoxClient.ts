@@ -44,7 +44,7 @@ class FortnoxClient {
     let response = await this.basicRequest<{
       MetaInformation: any;
       [key: string]: any;
-    }>(baseEndpoint);
+    }>(`${baseEndpoint}&limit=500`);
 
     // Extract the key that is not 'MetaInformation' from the response
     const dataKey = Object.keys(response).find(
