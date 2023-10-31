@@ -39,11 +39,12 @@ class FortnoxClient {
   ): Promise<T> {
     let results: any = {}; // Initialize an empty object
 
-    const limitParam = limit ? `&limit=${limit}` : "";
+    const limitParam = limit ? `limit=${limit}` : "";
+    const connector = baseEndpoint.includes("?") ? "&" : "?";
     let response = await this.basicRequest<{
       MetaInformation: any;
       [key: string]: any;
-    }>(`${baseEndpoint}${limitParam}`);
+    }>(`${baseEndpoint}${connector}${limitParam}`);
 
     const dataKey = Object.keys(response).find(
       (key) => key !== "MetaInformation"
