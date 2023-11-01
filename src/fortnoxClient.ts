@@ -9,6 +9,7 @@ import type {
   CompanyInformationWrapper,
   Voucher,
   FortnoxAPIError,
+  DetailedVoucher,
 } from "./types";
 import { FortnoxError } from "./fortnoxError";
 import Bottleneck from "bottleneck";
@@ -124,11 +125,10 @@ class FortnoxClient {
   public async getVoucherDetails(
     voucherSeries: string,
     voucherNumber: number
-  ): Promise<Voucher> {
+  ): Promise<DetailedVoucher> {
     const endpoint = `vouchers/${voucherSeries}/${voucherNumber}`;
-    return this.basicRequest<Voucher>(endpoint);
+    return this.basicRequest<DetailedVoucher>(endpoint);
   }
-
   public async getVoucherSeries(
     paginate: boolean = false
   ): Promise<VoucherSeriesCollection> {

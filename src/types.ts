@@ -50,6 +50,10 @@ export interface Voucher {
   ApprovalState: number;
 }
 
+export interface DetailedVoucher {
+  Voucher: Voucher;
+}
+
 export interface VoucherCollection {
   Vouchers: Voucher[];
   MetaInformation: MetaInformation;
@@ -114,7 +118,6 @@ export interface CompanyInformationWrapper {
     VisitZipCode: string;
     ZipCode: string;
   };
-  MetaInformation: MetaInformation;
 }
 
 export interface FortnoxAPIError {
