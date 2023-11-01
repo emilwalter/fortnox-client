@@ -39,7 +39,7 @@ class FortnoxClient {
     limit: number = 500,
     financialyear?: number,
     paginate: boolean = false
-  ): Promise<T> {
+  ): Promise<{ data: T; MetaInformation: any }> {
     let results: any = {};
 
     // Create a list of query params and their values.
@@ -68,7 +68,10 @@ class FortnoxClient {
     }
 
     if (!paginate) {
-      return results as T;
+      return {
+        data: results as T,
+        MetaInformation: response.MetaInformation, // Include the MetaInformation here
+      };
     }
 
     let currentPage = 2; // Start from the second page, as the first page has already been fetched.
@@ -87,7 +90,10 @@ class FortnoxClient {
       currentPage++;
     }
 
-    return results as T;
+    return {
+      data: results as T,
+      MetaInformation: response.MetaInformation, // Include the MetaInformation here too
+    };
   }
 
   public async getVouchers(
@@ -98,7 +104,7 @@ class FortnoxClient {
     paginate: boolean = false,
     page?: number,
     offset?: number
-  ): Promise<VoucherCollection> {
+  ): Promise<{ data: VoucherCollection; MetaInformation: any }> {
     let endpoint = "vouchers?";
     if (fromDate) {
       endpoint += `fromdate=${fromDate}&`;
@@ -131,7 +137,7 @@ class FortnoxClient {
   }
   public async getVoucherSeries(
     paginate: boolean = false
-  ): Promise<VoucherSeriesCollection> {
+  ): Promise<{ data: VoucherSeriesCollection; MetaInformation: any }> {
     return this.handlePagination<VoucherSeriesCollection>(
       "voucherseries",
       undefined,
@@ -142,7 +148,7 @@ class FortnoxClient {
 
   public async getFinancialYears(
     paginate: boolean = false
-  ): Promise<FinancialYearsCollection> {
+  ): Promise<{ data: FinancialYearsCollection; MetaInformation: any }> {
     return this.handlePagination<FinancialYearsCollection>(
       "financialyears",
       undefined,
@@ -161,7 +167,7 @@ class FortnoxClient {
     financialYear?: number,
     limit?: number,
     paginate: boolean = false
-  ): Promise<AccountCollection> {
+  ): Promise<{ data: AccountCollection; MetaInformation: any }> {
     let endpoint = `accounts?accountnumberfrom=${accountNumberFrom}&accountnumberto=${accountNumberTo}`;
     if (financialYear) {
       endpoint += `&financialyear=${financialYear}`;
