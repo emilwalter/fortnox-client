@@ -94,7 +94,9 @@ class FortnoxClient {
     toDate?: string,
     limit?: number,
     financialyear?: number,
-    paginate: boolean = false
+    paginate: boolean = false,
+    page?: number,
+    offset?: number
   ): Promise<VoucherCollection> {
     let endpoint = "vouchers?";
     if (fromDate) {
@@ -102,6 +104,12 @@ class FortnoxClient {
     }
     if (toDate) {
       endpoint += `todate=${toDate}&`;
+    }
+    if (page) {
+      endpoint += `&page=${page}`;
+    }
+    if (offset) {
+      endpoint += `&offset=${offset}`;
     }
     endpoint = endpoint.endsWith("&") ? endpoint.slice(0, -1) : endpoint;
 
