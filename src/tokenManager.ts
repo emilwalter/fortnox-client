@@ -66,6 +66,7 @@ class TokenManager {
       };
     } catch (error) {
       console.error("Error refreshing access token:", error);
+      console.error("credentials:", Credentials);
       throw error;
     }
   }
