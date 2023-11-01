@@ -23,7 +23,7 @@ class FortnoxClient {
     this.accessToken = options.accessToken;
     this.limiter = new Bottleneck({
       maxConcurrent: 1,
-      minTime: 200,
+      minTime: 250,
     });
   }
 
