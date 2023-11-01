@@ -10,6 +10,7 @@ import type {
   Voucher,
   FortnoxAPIError,
   DetailedVoucher,
+  MetaInformation,
 } from "./types";
 import { FortnoxError } from "./fortnoxError";
 import Bottleneck from "bottleneck";
@@ -70,7 +71,7 @@ class FortnoxClient {
     if (!paginate) {
       return {
         data: results as T,
-        MetaInformation: response.MetaInformation, // Include the MetaInformation here
+        MetaInformation: response.MetaInformation as MetaInformation,
       };
     }
 
@@ -92,7 +93,7 @@ class FortnoxClient {
 
     return {
       data: results as T,
-      MetaInformation: response.MetaInformation, // Include the MetaInformation here too
+      MetaInformation: response.MetaInformation as MetaInformation,
     };
   }
 
