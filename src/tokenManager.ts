@@ -6,56 +6,55 @@ class TokenManager {
   private baseURL: string = "https://apps.fortnox.se/oauth-v1/";
   private clientId: string;
   private clientSecret: string;
-  private expiresAt!: Date;
+  private expiresAt: Date;
 
   constructor(
     initialAccessToken: string,
     initialRefreshToken: string,
-    initialExpiresIn: number,
+    initialExpiresAt: Date,
     clientId: string,
     clientSecret: string
   ) {
     this.accessToken = initialAccessToken;
     this.refreshToken = initialRefreshToken;
+    this.expiresAt = initialExpiresAt;
     this.clientId = clientId;
     this.clientSecret = clientSecret;
-    this.setExpiration(initialExpiresIn);
+  }
+
+  private async refreshAccessToken(): Promise<void> {
+    const Credentials = Buffer.from(
+      `${this.clientId}:${this.clientSecret}`
+    ).toString("base64");
+
+    // Request new tokens from Fortnox using the refresh token
+    const tokenResponse = await axios.post(
+      `${this.baseURL}token`,
+      `grant_type=refresh_token&refresh_token=${this.refreshToken}`,
+      {
+        headers: {
+          Authorization: `Basic ${Credentials}`,
+          "Content-type": "application/x-www-form-urlencoded",
+        },
+      }
+    );
+
+    const {
+      access_token,
+      refresh_token: new_refresh_token,
+      expires_in,
+    } = tokenResponse.data;
+
+    // Update the class properties
+    this.accessToken = access_token;
+    this.refreshToken = new_refresh_token;
+
+    // Update the expiration timestamp using the new expiresIn value
+    this.setExpiration(expires_in);
   }
 
   private setExpiration(expiresIn: number) {
     this.expiresAt = new Date(Date.now() + expiresIn * 1000);
-  }
-
-  private async refreshAccessToken(): Promise<void> {
-    try {
-      const Credentials = Buffer.from(
-        `${this.clientId}:${this.clientSecret}`
-      ).toString("base64");
-
-      const tokenResponse = await axios.post(
-        `${this.baseURL}token`,
-        `grant_type=refresh_token&refresh_token=${this.refreshToken}`,
-        {
-          headers: {
-            Authorization: `Basic ${Credentials}`,
-            "Content-type": "application/x-www-form-urlencoded",
-          },
-        }
-      );
-
-      const {
-        access_token,
-        refresh_token: new_refresh_token,
-        expires_in,
-      } = tokenResponse.data;
-
-      this.accessToken = access_token;
-      this.refreshToken = new_refresh_token;
-      this.setExpiration(expires_in);
-    } catch (error) {
-      console.error("Failed to refresh access token:", error);
-      throw new Error("Failed to refresh access token");
-    }
   }
 
   public async getToken(): Promise<string> {
@@ -66,7 +65,6 @@ class TokenManager {
   }
 
   private isTokenExpired(): boolean {
-    if (!this.expiresAt) return true;
     return this.expiresAt.getTime() <= Date.now();
   }
 }
