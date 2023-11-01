@@ -92,7 +92,8 @@ class TokenManager {
   }
 
   private isTokenExpired(): boolean {
-    return this.expiresAt.getTime() <= Date.now();
+    const nineMinutesInMilliseconds = 9 * 60 * 1000;
+    return this.expiresAt.getTime() - Date.now() <= nineMinutesInMilliseconds;
   }
 }
 
