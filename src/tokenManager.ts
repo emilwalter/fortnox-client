@@ -22,7 +22,12 @@ class TokenManager {
     this.clientSecret = clientSecret;
   }
 
-  private async refreshAccessToken(): Promise<void> {
+  private async refreshAccessToken(): Promise<{
+    accessToken: string;
+    refreshToken: string;
+    expiresIn: number;
+    expiresAt: Date;
+  }> {
     const Credentials = Buffer.from(
       `${this.clientId}:${this.clientSecret}`
     ).toString("base64");
@@ -51,17 +56,34 @@ class TokenManager {
 
     // Update the expiration timestamp using the new expiresIn value
     this.setExpiration(expires_in);
+
+    return {
+      accessToken: this.accessToken,
+      refreshToken: this.refreshToken,
+      expiresIn: expires_in,
+      expiresAt: this.expiresAt,
+    };
   }
 
   private setExpiration(expiresIn: number) {
     this.expiresAt = new Date(Date.now() + expiresIn * 1000);
   }
 
-  public async getToken(): Promise<string> {
+  public async getToken(): Promise<{
+    accessToken: string;
+    refreshToken: string;
+    expiresIn: number;
+    expiresAt: Date;
+  }> {
     if (this.isTokenExpired()) {
-      await this.refreshAccessToken();
+      return await this.refreshAccessToken();
     }
-    return this.accessToken;
+    return {
+      accessToken: this.accessToken,
+      refreshToken: this.refreshToken,
+      expiresIn: Math.floor((this.expiresAt.getTime() - Date.now()) / 1000),
+      expiresAt: this.expiresAt,
+    };
   }
 
   private isTokenExpired(): boolean {
