@@ -39,8 +39,8 @@ class TokenManager {
         `grant_type=refresh_token&refresh_token=${this.refreshToken}`,
         {
           headers: {
-            Authorization: `Basic ${Credentials}`,
             "Content-type": "application/x-www-form-urlencoded",
+            Authorization: `Basic ${Credentials}`,
           },
         }
       );
@@ -66,7 +66,6 @@ class TokenManager {
       };
     } catch (error) {
       console.error("Error refreshing access token:", error);
-      console.error("credentials:", Credentials);
       throw error;
     }
   }
