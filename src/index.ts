@@ -1,4 +1,4 @@
-// src/index.ts
 import FortnoxClient from "./fortnoxClient";
+import TokenManager from "./tokenManager";
 
-export { FortnoxClient };
+export { FortnoxClient, TokenManager };
