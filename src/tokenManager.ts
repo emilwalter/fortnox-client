@@ -32,37 +32,42 @@ class TokenManager {
       `${this.clientId}:${this.clientSecret}`
     ).toString("base64");
 
-    // Request new tokens from Fortnox using the refresh token
-    const tokenResponse = await axios.post(
-      `${this.baseURL}token`,
-      `grant_type=refresh_token&refresh_token=${this.refreshToken}`,
-      {
-        headers: {
-          Authorization: `Basic ${Credentials}`,
-          "Content-type": "application/x-www-form-urlencoded",
-        },
-      }
-    );
+    try {
+      // Request new tokens from Fortnox using the refresh token
+      const tokenResponse = await axios.post(
+        `${this.baseURL}token`,
+        `grant_type=refresh_token&refresh_token=${this.refreshToken}`,
+        {
+          headers: {
+            Authorization: `Basic ${Credentials}`,
+            "Content-type": "application/x-www-form-urlencoded",
+          },
+        }
+      );
 
-    const {
-      access_token,
-      refresh_token: new_refresh_token,
-      expires_in,
-    } = tokenResponse.data;
+      const {
+        access_token,
+        refresh_token: new_refresh_token,
+        expires_in,
+      } = tokenResponse.data;
 
-    // Update the class properties
-    this.accessToken = access_token;
-    this.refreshToken = new_refresh_token;
+      // Update the class properties
+      this.accessToken = access_token;
+      this.refreshToken = new_refresh_token;
 
-    // Update the expiration timestamp using the new expiresIn value
-    this.setExpiration(expires_in);
+      // Update the expiration timestamp using the new expiresIn value
+      this.setExpiration(expires_in);
 
-    return {
-      accessToken: this.accessToken,
-      refreshToken: this.refreshToken,
-      expiresIn: expires_in,
-      expiresAt: this.expiresAt,
-    };
+      return {
+        accessToken: this.accessToken,
+        refreshToken: this.refreshToken,
+        expiresIn: expires_in,
+        expiresAt: this.expiresAt,
+      };
+    } catch (error) {
+      console.error("Error refreshing access token:", error);
+      throw error;
+    }
   }
 
   private setExpiration(expiresIn: number) {
