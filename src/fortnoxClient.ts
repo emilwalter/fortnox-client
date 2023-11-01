@@ -176,9 +176,14 @@ class FortnoxClient {
         });
         return response.data;
       } catch (error: any) {
+        console.error(error); // Log the error to diagnose the issue
+
         if (error.response) {
+          // Check if error.response.data.ErrorInformation exists before accessing its message property
+          const errorMessage =
+            error.response.data.ErrorInformation?.message || "Unknown Error";
           throw new FortnoxError(
-            error.response.data.ErrorInformation.message,
+            errorMessage,
             error.response.status,
             error.response.data
           );
