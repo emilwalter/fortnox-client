@@ -6,7 +6,8 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "release": "npm version patch && npm run build && npm publish && git push origin --tags"
   },
   "keywords": [
     "fortnox",
