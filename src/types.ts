@@ -52,6 +52,7 @@ export interface Voucher {
 
 export interface VoucherCollection {
   Vouchers: Voucher[];
+  MetaInformation: MetaInformation;
 }
 
 export interface FinancialYear {
@@ -65,6 +66,7 @@ export interface FinancialYear {
 
 export interface FinancialYearsCollection {
   FinancialYears: FinancialYear[];
+  MetaInformation: MetaInformation;
 }
 
 export interface OpeningQuantity {
@@ -95,6 +97,7 @@ export interface Account {
 
 export interface AccountCollection {
   Accounts: Account[];
+  MetaInformation: MetaInformation;
 }
 
 export interface CompanyInformationWrapper {
@@ -111,6 +114,7 @@ export interface CompanyInformationWrapper {
     VisitZipCode: string;
     ZipCode: string;
   };
+  MetaInformation: MetaInformation;
 }
 
 export interface FortnoxAPIError {
@@ -119,4 +123,10 @@ export interface FortnoxAPIError {
     message: string;
     code: number;
   };
+}
+
+export interface MetaInformation {
+  "@TotalPages": number;
+  "@CurrentPage": number;
+  "@TotalResources": number;
 }
