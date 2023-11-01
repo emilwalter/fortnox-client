@@ -1,5 +1,5 @@
 // src/fortnoxClient.ts
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import type {
   VoucherSeriesCollection,
   VoucherCollection,
@@ -8,6 +8,7 @@ import type {
   FortnoxClientOptions,
   CompanyInformationWrapper,
   Voucher,
+  FortnoxAPIError,
 } from "./types";
 import { FortnoxError } from "./fortnoxError";
 import Bottleneck from "bottleneck";
@@ -178,8 +179,23 @@ class FortnoxClient {
       } catch (error: any) {
         console.error(error); // Log the error to diagnose the issue
 
-        if (error.response) {
-          // Check if error.response.data.ErrorInformation exists before accessing its message property
+        if (axios.isAxiosError(error)) {
+          // Axios error
+          const axiosError: AxiosError = error;
+          const errorData = axiosError.response?.data as
+            | FortnoxAPIError
+            | undefined;
+          const errorMessage =
+            errorData?.ErrorInformation?.message || "Unknown Error";
+          const statusCode = axiosError.response?.status;
+          throw new FortnoxError(
+            errorMessage,
+            statusCode,
+            errorData,
+            axiosError
+          );
+        } else if (error.response) {
+          // Other HTTP error (not from Axios)
           const errorMessage =
             error.response.data.ErrorInformation?.message || "Unknown Error";
           throw new FortnoxError(
