@@ -1,4 +1,5 @@
 import axios from "axios";
+import { FortnoxError } from "./fortnoxError";
 
 class TokenManager {
   private accessToken: string;
@@ -64,7 +65,31 @@ class TokenManager {
         expiresIn: expires_in,
         expiresAt: this.expiresAt,
       };
-    } catch (error) {
+    } catch (error: any) {
+      if (error.response && error.response.status) {
+        const statusCode = error.response.status;
+
+        if (
+          statusCode === 400 &&
+          error.response.data &&
+          error.response.data.error_description === "Invalid refresh token"
+        ) {
+          throw new FortnoxError(
+            "Invalid refresh token",
+            statusCode,
+            undefined,
+            error
+          );
+        } else if (statusCode === 429) {
+          throw new FortnoxError(
+            "Too many requests, please try again later",
+            statusCode,
+            undefined,
+            error
+          );
+        }
+      }
+
       console.error("Error refreshing access token:", error);
       throw error;
     }
