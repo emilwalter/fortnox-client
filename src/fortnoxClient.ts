@@ -195,14 +195,31 @@ class FortnoxClient {
         console.error(error); // Log the error to diagnose the issue
 
         if (axios.isAxiosError(error)) {
-          // Axios error
           const axiosError: AxiosError = error;
+          const statusCode = axiosError.response?.status;
+
+          // Check for 429 status code
+          if (statusCode === 429) {
+            const retryAfter = axiosError.response?.headers["retry-after"]; // Get the retry-after header if available
+            if (retryAfter) {
+              // Convert retryAfter to milliseconds and wait for that duration
+              await new Promise((resolve) =>
+                setTimeout(resolve, retryAfter * 1000)
+              );
+              return this.basicRequest(endpoint); // Retry the request
+            } else {
+              throw new FortnoxError(
+                "Too many requests, please try again later",
+                statusCode
+              );
+            }
+          }
+
           const errorData = axiosError.response?.data as
             | FortnoxAPIError
             | undefined;
           const errorMessage =
             errorData?.ErrorInformation?.message || "Unknown Error";
-          const statusCode = axiosError.response?.status;
           throw new FortnoxError(
             errorMessage,
             statusCode,
@@ -210,7 +227,6 @@ class FortnoxClient {
             axiosError
           );
         } else if (error.response) {
-          // Other HTTP error (not from Axios)
           const errorMessage =
             error.response.data.ErrorInformation?.message || "Unknown Error";
           throw new FortnoxError(

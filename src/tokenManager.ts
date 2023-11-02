@@ -80,13 +80,6 @@ class TokenManager {
             undefined,
             error
           );
-        } else if (statusCode === 429) {
-          throw new FortnoxError(
-            "Too many requests, please try again later",
-            statusCode,
-            undefined,
-            error
-          );
         }
       }
 
