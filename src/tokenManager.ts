@@ -92,28 +92,14 @@ class TokenManager {
     this.expiresAt = new Date(Date.now() + expiresIn * 1000);
   }
 
+  // Always refresh the token when queried
   public async getToken(): Promise<{
     accessToken: string;
     refreshToken: string;
     expiresIn: number;
     expiresAt: Date;
   }> {
-    if (this.isTokenExpired()) {
-      return await this.refreshAccessToken();
-    }
-    return {
-      accessToken: this.accessToken,
-      refreshToken: this.refreshToken,
-      expiresIn: Math.floor((this.expiresAt.getTime() - Date.now()) / 1000),
-      expiresAt: this.expiresAt,
-    };
-  }
-
-  private isTokenExpired(): boolean {
-    // 30 minutes
-    const thirtyMinutesInMilliseconds = 30 * 60 * 1000;
-
-    return this.expiresAt.getTime() - Date.now() <= thirtyMinutesInMilliseconds;
+    return await this.refreshAccessToken();
   }
 }
 
