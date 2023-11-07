@@ -131,11 +131,16 @@ class FortnoxClient {
 
   public async getVoucherDetails(
     voucherSeries: string,
-    voucherNumber: number
+    voucherNumber: number,
+    financialYear?: number
   ): Promise<DetailedVoucher> {
-    const endpoint = `vouchers/${voucherSeries}/${voucherNumber}`;
+    let endpoint = `vouchers/${voucherSeries}/${voucherNumber}`;
+    if (financialYear) {
+      endpoint += `?financialyear=${financialYear}`;
+    }
     return this.basicRequest<DetailedVoucher>(endpoint);
   }
+
   public async getVoucherSeries(
     paginate: boolean = false
   ): Promise<{ data: VoucherSeriesCollection; MetaInformation: any }> {
