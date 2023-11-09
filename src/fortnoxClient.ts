@@ -101,17 +101,15 @@ class FortnoxClient {
   }
 
   public async getAccounts(
-    accountNumberFrom?: number,
-    accountNumberTo?: number,
+    offset?: number,
+    limit?: number,
     financialYear?: number,
     lastmodified?: string
   ): Promise<{ data: AccountCollection; MetaInformation: any }> {
     let queryParams = new URLSearchParams();
 
-    if (accountNumberFrom)
-      queryParams.append("accountnumberfrom", accountNumberFrom.toString());
-    if (accountNumberTo)
-      queryParams.append("accountnumberto", accountNumberTo.toString());
+    if (offset) queryParams.append("offset", offset.toString());
+    if (limit) queryParams.append("limit", limit.toString());
     if (financialYear)
       queryParams.append("financialyear", financialYear.toString());
     if (lastmodified)
