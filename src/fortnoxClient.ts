@@ -39,7 +39,8 @@ class FortnoxClient {
     page?: number,
     offset?: number,
     lastmodified?: string,
-    limit?: number
+    limit?: number,
+    financialYear?: number
   ): Promise<{ data: VoucherCollection; MetaInformation: any }> {
     let queryParams = new URLSearchParams();
 
@@ -47,6 +48,8 @@ class FortnoxClient {
     if (toDate) queryParams.append("todate", toDate);
     if (page) queryParams.append("page", page.toString());
     if (offset) queryParams.append("offset", offset.toString());
+    if (financialYear)
+      queryParams.append("financialyear", financialYear.toString());
     if (lastmodified)
       queryParams.append("lastmodified", lastmodified.toString());
     if (limit) queryParams.append("limit", limit.toString());
