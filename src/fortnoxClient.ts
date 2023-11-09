@@ -1,19 +1,17 @@
 // src/fortnoxClient.ts
 import axios, { AxiosError } from "axios";
-import type {
-  VoucherSeriesCollection,
-  VoucherCollection,
-  FinancialYearsCollection,
-  AccountCollection,
-  FortnoxClientOptions,
-  CompanyInformationWrapper,
-  Voucher,
-  FortnoxAPIError,
-  DetailedVoucher,
-  MetaInformation,
-} from "./types";
-import { FortnoxError } from "./fortnoxError";
 import Bottleneck from "bottleneck";
+import { FortnoxError } from "./fortnoxError";
+import type {
+  AccountCollection,
+  CompanyInformationWrapper,
+  DetailedVoucher,
+  FinancialYearsCollection,
+  FortnoxAPIError,
+  FortnoxClientOptions,
+  VoucherCollection,
+  VoucherSeriesCollection,
+} from "./types";
 
 class FortnoxClient {
   private accessToken: string;
@@ -35,101 +33,27 @@ class FortnoxClient {
     };
   }
 
-  private async handlePagination<T>(
-    baseEndpoint: string,
-    limit: number = 500,
-    financialyear?: number,
-    paginate: boolean = false
-  ): Promise<{ data: T; MetaInformation: any }> {
-    let results: any = {};
-
-    // Create a list of query params and their values.
-    const queryParams: string[] = [];
-    if (limit) queryParams.push(`limit=${limit}`);
-    if (financialyear) queryParams.push(`financialyear=${financialyear}`);
-
-    // Join the query params using '&' and append to baseEndpoint.
-    const finalEndpoint = queryParams.length
-      ? `${baseEndpoint}${
-          baseEndpoint.includes("?") ? "&" : "?"
-        }${queryParams.join("&")}`
-      : baseEndpoint;
-
-    let response = await this.basicRequest<{
-      MetaInformation: any;
-      [key: string]: any;
-    }>(finalEndpoint);
-
-    const dataKey = Object.keys(response).find(
-      (key) => key !== "MetaInformation"
-    );
-
-    if (dataKey) {
-      results[dataKey] = response[dataKey];
-    }
-
-    if (!paginate) {
-      return {
-        data: results as T,
-        MetaInformation: response.MetaInformation as MetaInformation,
-      };
-    }
-
-    let currentPage = 2; // Start from the second page, as the first page has already been fetched.
-    const totalPages = response.MetaInformation["@TotalPages"];
-
-    while (currentPage <= totalPages) {
-      response = await this.basicRequest<{
-        MetaInformation: any;
-        [key: string]: any;
-      }>(`${finalEndpoint}&page=${currentPage}`);
-
-      if (dataKey) {
-        results[dataKey] = results[dataKey].concat(response[dataKey]);
-      }
-
-      currentPage++;
-    }
-
-    return {
-      data: results as T,
-      MetaInformation: response.MetaInformation as MetaInformation,
-    };
-  }
-
   public async getVouchers(
     fromDate?: string,
     toDate?: string,
-    limit?: number,
-    financialyear?: number,
-    paginate: boolean = false,
     page?: number,
     offset?: number,
-    lastmodified?: string
+    lastmodified?: string,
+    limit?: number
   ): Promise<{ data: VoucherCollection; MetaInformation: any }> {
-    let endpoint = "vouchers?";
-    if (fromDate) {
-      endpoint += `fromdate=${fromDate}&`;
-    }
-    if (toDate) {
-      endpoint += `todate=${toDate}&`;
-    }
-    if (page) {
-      endpoint += `&page=${page}`;
-    }
-    if (offset) {
-      endpoint += `&offset=${offset}`;
-    }
-    if (lastmodified) {
-      endpoint += `&lastmodified=${lastmodified}`;
-    }
-    endpoint = endpoint.endsWith("&") ? endpoint.slice(0, -1) : endpoint;
+    let queryParams = new URLSearchParams();
 
-    return this.handlePagination<VoucherCollection>(
-      endpoint,
-      limit,
-      financialyear,
-      paginate
+    if (fromDate) queryParams.append("fromdate", fromDate);
+    if (toDate) queryParams.append("todate", toDate);
+    if (page) queryParams.append("page", page.toString());
+    if (offset) queryParams.append("offset", offset.toString());
+    if (lastmodified)
+      queryParams.append("lastmodified", lastmodified.toString());
+    if (limit) queryParams.append("limit", limit.toString());
+
+    const endpoint = `vouchers?${queryParams.toString()}`;
+    return this.basicRequest<{ data: VoucherCollection; MetaInformation: any }>(
+      endpoint
     );
   }
 
@@ -139,38 +63,34 @@ class FortnoxClient {
     financialYear?: number,
     lastmodified?: string
   ): Promise<DetailedVoucher> {
-    let endpoint = `vouchers/${voucherSeries}/${voucherNumber}?`;
-    if (financialYear) {
-      endpoint += `?financialyear=${financialYear}`;
-    }
-    if (lastmodified) {
-      endpoint += `&lastmodified=${lastmodified}`;
-    }
-    endpoint = endpoint.endsWith("&") ? endpoint.slice(0, -1) : endpoint;
+    let queryParams = new URLSearchParams();
 
+    if (financialYear)
+      queryParams.append("financialyear", financialYear.toString());
+    if (lastmodified) queryParams.append("lastmodified", lastmodified);
+
+    const endpoint = `vouchers/${voucherSeries}/${voucherNumber}?${queryParams.toString()}`;
     return this.basicRequest<DetailedVoucher>(endpoint);
   }
 
-  public async getVoucherSeries(
-    paginate: boolean = false
-  ): Promise<{ data: VoucherSeriesCollection; MetaInformation: any }> {
-    return this.handlePagination<VoucherSeriesCollection>(
-      "voucherseries",
-      undefined,
-      undefined,
-      paginate
-    );
+  public async getVoucherSeries(): Promise<{
+    data: VoucherSeriesCollection;
+    MetaInformation: any;
+  }> {
+    return this.basicRequest<{
+      data: VoucherSeriesCollection;
+      MetaInformation: any;
+    }>("voucherseries");
   }
 
-  public async getFinancialYears(
-    paginate: boolean = false
-  ): Promise<{ data: FinancialYearsCollection; MetaInformation: any }> {
-    return this.handlePagination<FinancialYearsCollection>(
-      "financialyears",
-      undefined,
-      undefined,
-      paginate
-    );
+  public async getFinancialYears(): Promise<{
+    data: FinancialYearsCollection;
+    MetaInformation: any;
+  }> {
+    return this.basicRequest<{
+      data: FinancialYearsCollection;
+      MetaInformation: any;
+    }>("financialyears");
   }
 
   public async getCompanyInformation(): Promise<CompanyInformationWrapper> {
@@ -178,22 +98,43 @@ class FortnoxClient {
   }
 
   public async getAccounts(
-    accountNumberFrom: number,
-    accountNumberTo: number,
+    accountNumberFrom?: number,
+    accountNumberTo?: number,
     financialYear?: number,
-    limit?: number,
-    paginate: boolean = false
+    lastmodified?: string
   ): Promise<{ data: AccountCollection; MetaInformation: any }> {
-    let endpoint = `accounts?accountnumberfrom=${accountNumberFrom}&accountnumberto=${accountNumberTo}`;
-    if (financialYear) {
-      endpoint += `&financialyear=${financialYear}`;
-    }
-    return this.handlePagination<AccountCollection>(
-      endpoint,
-      limit,
-      financialYear,
-      paginate
+    let queryParams = new URLSearchParams();
+
+    if (accountNumberFrom)
+      queryParams.append("accountnumberfrom", accountNumberFrom.toString());
+    if (accountNumberTo)
+      queryParams.append("accountnumberto", accountNumberTo.toString());
+    if (financialYear)
+      queryParams.append("financialyear", financialYear.toString());
+    if (lastmodified)
+      queryParams.append("lastmodified", lastmodified.toString());
+
+    const endpoint = `accounts?${queryParams.toString()}`;
+    return this.basicRequest<{ data: AccountCollection; MetaInformation: any }>(
+      endpoint
     );
+  }
+
+  public async getAccount(
+    accountNumber: number,
+    financialYear?: number,
+    lastmodified?: string
+  ): Promise<AccountCollection> {
+    let queryParams = new URLSearchParams();
+
+    if (financialYear)
+      queryParams.append("financialyear", financialYear.toString());
+
+    if (lastmodified)
+      queryParams.append("lastmodified", lastmodified.toString());
+
+    const endpoint = `accounts/${accountNumber}?${queryParams.toString()}`;
+    return this.basicRequest<AccountCollection>(endpoint);
   }
 
   private async basicRequest<T>(endpoint: string): Promise<T> {
@@ -215,19 +156,10 @@ class FortnoxClient {
 
           // Check for 429 status code
           if (statusCode === 429) {
-            const retryAfter = axiosError.response?.headers["retry-after"]; // Get the retry-after header if available
-            if (retryAfter) {
-              // Convert retryAfter to milliseconds and wait for that duration
-              await new Promise((resolve) =>
-                setTimeout(resolve, retryAfter * 1000)
-              );
-              return this.basicRequest(endpoint); // Retry the request
-            } else {
-              throw new FortnoxError(
-                "Too many requests, please try again later",
-                statusCode
-              );
-            }
+            throw new FortnoxError(
+              "Too many requests, please try again later",
+              statusCode
+            );
           }
 
           const errorData = axiosError.response?.data as
