@@ -9,8 +9,11 @@ import type {
   FinancialYearsCollection,
   FortnoxAPIError,
   FortnoxClientOptions,
+  GetAccountParams,
+  GetAccountsParams,
+  GetVoucherDetailsParams,
+  GetVouchersParams,
   VoucherCollection,
-  VoucherSeriesCollection,
 } from "./types";
 
 class FortnoxClient {
@@ -34,26 +37,9 @@ class FortnoxClient {
   }
 
   public async getVouchers(
-    fromDate?: string,
-    toDate?: string,
-    page?: number,
-    offset?: number,
-    lastmodified?: string,
-    limit?: number,
-    financialYear?: number
+    params: GetVouchersParams
   ): Promise<{ data: VoucherCollection; MetaInformation: any }> {
-    let queryParams = new URLSearchParams();
-
-    if (fromDate) queryParams.append("fromdate", fromDate);
-    if (toDate) queryParams.append("todate", toDate);
-    if (page) queryParams.append("page", page.toString());
-    if (offset) queryParams.append("offset", offset.toString());
-    if (financialYear)
-      queryParams.append("financialyear", financialYear.toString());
-    if (lastmodified)
-      queryParams.append("lastmodified", lastmodified.toString());
-    if (limit) queryParams.append("limit", limit.toString());
-
+    const queryParams = this.buildQueryParams(params);
     const endpoint = `vouchers?${queryParams.toString()}`;
     return this.basicRequest<{ data: VoucherCollection; MetaInformation: any }>(
       endpoint
@@ -61,29 +47,13 @@ class FortnoxClient {
   }
 
   public async getVoucherDetails(
-    voucherSeries: string,
-    voucherNumber: number,
-    financialYear?: number,
-    lastmodified?: string
+    params: GetVoucherDetailsParams
   ): Promise<DetailedVoucher> {
-    let queryParams = new URLSearchParams();
-
-    if (financialYear)
-      queryParams.append("financialyear", financialYear.toString());
-    if (lastmodified) queryParams.append("lastmodified", lastmodified);
-
-    const endpoint = `vouchers/${voucherSeries}/${voucherNumber}?${queryParams.toString()}`;
+    const queryParams = this.buildQueryParams(params);
+    const endpoint = `vouchers/${params.voucherSeries}/${
+      params.voucherNumber
+    }?${queryParams.toString()}`;
     return this.basicRequest<DetailedVoucher>(endpoint);
-  }
-
-  public async getVoucherSeries(): Promise<{
-    data: VoucherSeriesCollection;
-    MetaInformation: any;
-  }> {
-    return this.basicRequest<{
-      data: VoucherSeriesCollection;
-      MetaInformation: any;
-    }>("voucherseries");
   }
 
   public async getFinancialYears(): Promise<{
@@ -101,94 +71,73 @@ class FortnoxClient {
   }
 
   public async getAccounts(
-    offset?: number,
-    limit?: number,
-    financialYear?: number,
-    lastmodified?: string
+    params: GetAccountsParams
   ): Promise<{ data: AccountCollection; MetaInformation: any }> {
-    let queryParams = new URLSearchParams();
-
-    if (offset) queryParams.append("offset", offset.toString());
-    if (limit) queryParams.append("limit", limit.toString());
-    if (financialYear)
-      queryParams.append("financialyear", financialYear.toString());
-    if (lastmodified)
-      queryParams.append("lastmodified", lastmodified.toString());
-
+    const queryParams = this.buildQueryParams(params);
     const endpoint = `accounts?${queryParams.toString()}`;
     return this.basicRequest<{ data: AccountCollection; MetaInformation: any }>(
       endpoint
     );
   }
 
-  public async getAccount(
-    accountNumber: number,
-    financialYear?: number,
-    lastmodified?: string
+  public async getAccountDetails(
+    params: GetAccountParams
   ): Promise<AccountCollection> {
-    let queryParams = new URLSearchParams();
-
-    if (financialYear)
-      queryParams.append("financialyear", financialYear.toString());
-
-    if (lastmodified)
-      queryParams.append("lastmodified", lastmodified.toString());
-
-    const endpoint = `accounts/${accountNumber}?${queryParams.toString()}`;
+    const queryParams = this.buildQueryParams(params);
+    const endpoint = `accounts/${
+      params.accountNumber
+    }?${queryParams.toString()}`;
     return this.basicRequest<AccountCollection>(endpoint);
+  }
+
+  private buildQueryParams(params: Record<string, any>): URLSearchParams {
+    let queryParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined) {
+        queryParams.append(key, value.toString());
+      }
+    });
+    return queryParams;
   }
 
   private async basicRequest<T>(endpoint: string): Promise<T> {
     return this.limiter.schedule(async () => {
       try {
         const response = await axios.get<T>(`${this.baseURL}${endpoint}`, {
-          headers: {
-            ...this.headers,
-            Accept: "application/json",
-          },
+          headers: this.headers,
         });
         return response.data;
       } catch (error: any) {
-        console.error(error); // Log the error to diagnose the issue
-
-        if (axios.isAxiosError(error)) {
-          const axiosError: AxiosError = error;
-          const statusCode = axiosError.response?.status;
-
-          // Check for 429 status code
-          if (statusCode === 429) {
-            throw new FortnoxError(
-              "Too many requests, please try again later",
-              statusCode
-            );
-          }
-
-          const errorData = axiosError.response?.data as
-            | FortnoxAPIError
-            | undefined;
-          const errorMessage =
-            errorData?.ErrorInformation?.message || "Unknown Error";
-          throw new FortnoxError(
-            errorMessage,
-            statusCode,
-            errorData,
-            axiosError
-          );
-        } else if (error.response) {
-          const errorMessage =
-            error.response.data.ErrorInformation?.message || "Unknown Error";
-          throw new FortnoxError(
-            errorMessage,
-            error.response.status,
-            error.response.data
-          );
-        } else if (error.request) {
-          throw new FortnoxError("No response received from Fortnox API");
-        } else {
-          throw new FortnoxError(error.message);
-        }
+        this.handleError(error);
       }
     });
+  }
+
+  private handleError(error: any): never {
+    console.error(error); // Log the error to diagnose the issue
+
+    if (axios.isAxiosError(error)) {
+      const axiosError: AxiosError = error;
+      const statusCode = axiosError.response?.status;
+      const errorData = axiosError.response?.data as
+        | FortnoxAPIError
+        | undefined;
+      const errorMessage =
+        errorData?.ErrorInformation?.message || "Unknown Error";
+      throw new FortnoxError(errorMessage, statusCode, errorData, axiosError);
+    } else if (error.response) {
+      const errorMessage =
+        error.response.data.ErrorInformation?.message || "Unknown Error";
+      throw new FortnoxError(
+        errorMessage,
+        error.response.status,
+        error.response.data
+      );
+    } else if (error.request) {
+      throw new FortnoxError("No response received from Fortnox API");
+    } else {
+      throw new FortnoxError(error.message);
+    }
   }
 }
 

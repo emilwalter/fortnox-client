@@ -133,3 +133,33 @@ export interface MetaInformation {
   "@CurrentPage": number;
   "@TotalResources": number;
 }
+
+export interface GetVouchersParams {
+  fromDate?: string;
+  toDate?: string;
+  page?: number;
+  offset?: number;
+  lastmodified?: string;
+  limit?: number;
+  financialYear?: number;
+}
+
+export interface GetVoucherDetailsParams {
+  voucherSeries: string;
+  voucherNumber: number;
+  financialYear?: number;
+  lastmodified?: string;
+}
+
+export interface GetAccountsParams {
+  offset?: number;
+  limit?: number;
+  financialYear?: number;
+  lastmodified?: string;
+}
+
+export interface GetAccountParams {
+  accountNumber: number;
+  financialYear?: number;
+  lastmodified?: string;
+}
