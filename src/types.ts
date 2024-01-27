@@ -99,6 +99,10 @@ export interface Account {
   OpeningQuantities: OpeningQuantity[];
 }
 
+export interface DetailedAccount {
+  Account: Account;
+}
+
 export interface AccountCollection {
   Accounts: Account[];
   MetaInformation: MetaInformation;

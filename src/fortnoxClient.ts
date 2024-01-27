@@ -6,6 +6,7 @@ import type {
   Account,
   AccountCollection,
   CompanyInformationWrapper,
+  DetailedAccount,
   DetailedVoucher,
   FinancialYearsCollection,
   FortnoxAPIError,
@@ -73,7 +74,9 @@ class FortnoxClient {
     return this.basicRequest<AccountCollection>(endpoint);
   }
 
-  public async getAccountDetails(params: GetAccountParams): Promise<Account> {
+  public async getAccountDetails(
+    params: GetAccountParams
+  ): Promise<DetailedAccount> {
     const queryParams = new URLSearchParams();
     if (params.financialYear) {
       queryParams.append("financialyear", params.financialYear.toString());
@@ -81,7 +84,7 @@ class FortnoxClient {
     const endpoint = `accounts/${params.accountNumber}${
       queryParams.toString() ? `?${queryParams.toString()}` : ""
     }`;
-    return this.basicRequest<Account>(endpoint);
+    return this.basicRequest<DetailedAccount>(endpoint);
   }
 
   private buildQueryParams(params: Record<string, any>): URLSearchParams {
