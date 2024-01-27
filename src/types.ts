@@ -167,3 +167,123 @@ export interface GetAccountParams {
   financialYear?: number;
   lastmodified?: string;
 }
+
+export interface GetInvoicesParams {
+  offset?: number;
+  limit?: number;
+  financialYear?: number;
+  lastmodified?: string;
+  filter?: "cancelled" | "fullypaid" | "unpaid" | "unpaidoverdue" | "unbooked";
+  costcenter?: string;
+  customername?: string;
+  customernumber?: string;
+  label?: string;
+  documentnumber?: string;
+  fromdate?: string;
+  todate?: string;
+  fromfinalpaydate?: string;
+  tofinalpaydate?: string;
+  notcompleted?: string;
+  ocr?: string;
+  ourreference?: string;
+  project?: string;
+  sent?: string;
+  externalinvoicereference1?: string;
+  externalinvoicereference2?: string;
+  yourreference?: string;
+  invoicetype?: string;
+  articlenumber?: string;
+  articledescription?: string;
+  currency?: string;
+  accountnumberfrom?: string;
+  accountnumberto?: string;
+  yourordernumber?: string;
+  credit?: string;
+  sortby?:
+    | "customername"
+    | "customernumber"
+    | "documentnumber"
+    | "invoicedate"
+    | "ocr"
+    | "total";
+}
+
+export interface Invoice {
+  Balance: number;
+  Booked: boolean;
+  Cancelled: boolean;
+  CostCenter: string;
+  Currency: string;
+  CurrencyRate: number;
+  CurrencyUnit: number;
+  CustomerName: string;
+  CustomerNumber: string;
+  DocumentNumber: string;
+  DueDate: string; // ISO Date String
+  ExternalInvoiceReference1: string;
+  ExternalInvoiceReference2: string;
+  InvoiceDate: string; // ISO Date String
+  InvoiceType: string;
+  NoxFinans: boolean;
+  OCR: string;
+  VoucherNumber: number;
+  VoucherSeries: string;
+  VoucherYear: number;
+  WayOfDelivery: string;
+  TermsOfPayment: string;
+  Project: string;
+  Sent: boolean;
+  Total: number;
+  FinalPayDate: string; // ISO Date String
+}
+
+interface SupplierInvoice {
+  "@url": string;
+  Balance: string;
+  Booked: boolean;
+  Cancel: boolean;
+  CostCenter: string;
+  Credit: boolean;
+  Currency: string;
+  CurrencyRate: string;
+  CurrencyUnit: number;
+  DueDate: string; // Date in ISO format
+  ExternalInvoiceNumber: string;
+  ExternalInvoiceSeries: string;
+  GivenNumber: string;
+  InvoiceDate: string; // Date in ISO format
+  InvoiceNumber: string;
+  Project: string;
+  SupplierNumber: string;
+  SupplierName: string;
+  Total: string;
+  AuthorizerName: string;
+  Vouchers: Voucher[];
+  FinalPayDate: string; // Date in ISO format
+}
+
+export interface GetSupplierInvoicesParams {
+  filter?:
+    | "cancelled"
+    | "fullypaid"
+    | "unpaid"
+    | "unpaidoverdue"
+    | "unbooked"
+    | "pendingpayment"
+    | "authorizepending";
+}
+
+export interface SupplierInvoicesCollection {
+  SupplierInvoices: SupplierInvoice[];
+  MetaInformation: MetaInformation;
+}
+
+export interface InvoiceCollection {
+  Invoices: Invoice[];
+  MetaInformation: MetaInformation;
+}
+
+export interface SIEParams {
+  type: "3" | "4";
+  financialYear?: number;
+}

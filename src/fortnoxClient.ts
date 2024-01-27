@@ -13,8 +13,13 @@ import type {
   FortnoxClientOptions,
   GetAccountParams,
   GetAccountsParams,
+  GetInvoicesParams,
+  GetSupplierInvoicesParams,
   GetVoucherDetailsParams,
   GetVouchersParams,
+  InvoiceCollection,
+  SIEParams,
+  SupplierInvoicesCollection,
   VoucherCollection,
 } from "./types";
 
@@ -85,6 +90,33 @@ class FortnoxClient {
       queryParams.toString() ? `?${queryParams.toString()}` : ""
     }`;
     return this.basicRequest<DetailedAccount>(endpoint);
+  }
+
+  public async getInvoices(
+    params: GetInvoicesParams
+  ): Promise<InvoiceCollection> {
+    const queryParams = this.buildQueryParams(params);
+    const endpoint = `invoices?${queryParams.toString()}`;
+    return this.basicRequest<InvoiceCollection>(endpoint);
+  }
+
+  public async getSupplierInvoices(
+    params: GetSupplierInvoicesParams
+  ): Promise<SupplierInvoicesCollection> {
+    const queryParams = this.buildQueryParams(params);
+    const endpoint = `supplierinvoices?${queryParams.toString()}`;
+    return this.basicRequest<SupplierInvoicesCollection>(endpoint);
+  }
+
+  public async getSIE(params: SIEParams): Promise<string> {
+    const queryParams = new URLSearchParams();
+    if (params.financialYear) {
+      queryParams.append("financialyear", params.financialYear.toString());
+    }
+    const endpoint = `sie/${params.type}${
+      queryParams.toString() ? `?${queryParams.toString()}` : ""
+    }`;
+    return this.basicRequest<string>(endpoint);
   }
 
   private buildQueryParams(params: Record<string, any>): URLSearchParams {
