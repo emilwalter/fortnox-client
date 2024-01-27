@@ -103,7 +103,8 @@ class FortnoxClient {
   private async basicRequest<T>(endpoint: string): Promise<T> {
     return this.limiter.schedule(async () => {
       try {
-        const response = await axios.get<T>(`${this.baseURL}${endpoint}`, {
+        const url = `${this.baseURL}${endpoint}`;
+        const response = await axios.get<T>(url, {
           headers: this.headers,
         });
         return response.data;
