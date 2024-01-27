@@ -3,6 +3,7 @@ import axios, { AxiosError } from "axios";
 import Bottleneck from "bottleneck";
 import { FortnoxError } from "./fortnoxError";
 import type {
+  Account,
   AccountCollection,
   CompanyInformationWrapper,
   DetailedVoucher,
@@ -72,9 +73,7 @@ class FortnoxClient {
     return this.basicRequest<AccountCollection>(endpoint);
   }
 
-  public async getAccountDetails(
-    params: GetAccountParams
-  ): Promise<AccountCollection> {
+  public async getAccountDetails(params: GetAccountParams): Promise<Account> {
     const queryParams = params.financialYear
       ? new URLSearchParams({
           financialyear: params.financialYear.toString(),
@@ -82,7 +81,7 @@ class FortnoxClient {
       : "";
     const endpoint = `accounts/${params.accountNumber}
         }${queryParams ? `?${queryParams.toString()}` : ""}`;
-    return this.basicRequest<AccountCollection>(endpoint);
+    return this.basicRequest<Account>(endpoint);
   }
 
   private buildQueryParams(params: Record<string, any>): URLSearchParams {
