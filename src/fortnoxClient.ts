@@ -58,6 +58,10 @@ class FortnoxClient {
     return this.basicRequest<CompanyInformationWrapper>("companyinformation");
   }
 
+  public async getFinancialYears(): Promise<FinancialYearsCollection> {
+    return this.basicRequest<FinancialYearsCollection>("financialyears");
+  }
+
   public async getAccounts(
     params: GetAccountsParams
   ): Promise<AccountCollection> {
