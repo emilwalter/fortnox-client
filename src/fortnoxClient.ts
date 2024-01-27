@@ -84,7 +84,8 @@ class FortnoxClient {
     let queryParams = new URLSearchParams();
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined) {
-        queryParams.append(key, value.toString());
+        const formattedKey = key.toLowerCase();
+        queryParams.append(formattedKey, value.toString());
       }
     });
     return queryParams;
