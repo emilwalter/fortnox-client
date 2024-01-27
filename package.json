@@ -1,6 +1,6 @@
 {
   "name": "@waltermedia/fortnox-client",
-  "version": "0.9.3",
+  "version": "0.9.4",
   "description": "Opinionated Client for Fetching data from Fortnox",
   "private": false,
   "main": "dist/index.js",
