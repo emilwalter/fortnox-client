@@ -47,10 +47,12 @@ class FortnoxClient {
   public async getVoucherDetails(
     params: GetVoucherDetailsParams
   ): Promise<DetailedVoucher> {
-    const queryParams = this.buildQueryParams(params);
-    const endpoint = `vouchers/${params.voucherSeries}/${
-      params.voucherNumber
-    }?${queryParams.toString()}`;
+    const queryParams = params.financialYear
+      ? new URLSearchParams({ financialyear: params.financialYear.toString() })
+      : "";
+    const endpoint = `vouchers/${params.voucherSeries}/${params.voucherNumber}${
+      queryParams ? `?${queryParams.toString()}` : ""
+    }`;
     return this.basicRequest<DetailedVoucher>(endpoint);
   }
 
@@ -73,10 +75,13 @@ class FortnoxClient {
   public async getAccountDetails(
     params: GetAccountParams
   ): Promise<AccountCollection> {
-    const queryParams = this.buildQueryParams(params);
-    const endpoint = `accounts/${
-      params.accountNumber
-    }?${queryParams.toString()}`;
+    const queryParams = params.financialYear
+      ? new URLSearchParams({
+          financialyear: params.financialYear.toString(),
+        })
+      : "";
+    const endpoint = `accounts/${params.accountNumber}
+        }${queryParams ? `?${queryParams.toString()}` : ""}`;
     return this.basicRequest<AccountCollection>(endpoint);
   }
 
