@@ -105,7 +105,10 @@ class FortnoxClient {
       try {
         const url = `${this.baseURL}${endpoint}`;
         const response = await axios.get<T>(url, {
-          headers: this.headers,
+          headers: {
+            ...this.headers,
+            Accept: "application/json",
+          },
         });
         return response.data;
       } catch (error: any) {
