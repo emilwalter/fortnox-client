@@ -74,13 +74,13 @@ class FortnoxClient {
   }
 
   public async getAccountDetails(params: GetAccountParams): Promise<Account> {
-    const queryParams = params.financialYear
-      ? new URLSearchParams({
-          financialyear: params.financialYear.toString(),
-        })
-      : "";
-    const endpoint = `accounts/${params.accountNumber}
-        }${queryParams ? `?${queryParams.toString()}` : ""}`;
+    const queryParams = new URLSearchParams();
+    if (params.financialYear) {
+      queryParams.append("financialyear", params.financialYear.toString());
+    }
+    const endpoint = `accounts/${params.accountNumber}${
+      queryParams.toString() ? `?${queryParams.toString()}` : ""
+    }`;
     return this.basicRequest<Account>(endpoint);
   }
 
