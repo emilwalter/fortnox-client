@@ -38,12 +38,10 @@ class FortnoxClient {
 
   public async getVouchers(
     params: GetVouchersParams
-  ): Promise<{ data: VoucherCollection; MetaInformation: any }> {
+  ): Promise<VoucherCollection> {
     const queryParams = this.buildQueryParams(params);
     const endpoint = `vouchers?${queryParams.toString()}`;
-    return this.basicRequest<{ data: VoucherCollection; MetaInformation: any }>(
-      endpoint
-    );
+    return this.basicRequest<VoucherCollection>(endpoint);
   }
 
   public async getVoucherDetails(
@@ -56,28 +54,16 @@ class FortnoxClient {
     return this.basicRequest<DetailedVoucher>(endpoint);
   }
 
-  public async getFinancialYears(): Promise<{
-    data: FinancialYearsCollection;
-    MetaInformation: any;
-  }> {
-    return this.basicRequest<{
-      data: FinancialYearsCollection;
-      MetaInformation: any;
-    }>("financialyears");
-  }
-
   public async getCompanyInformation(): Promise<CompanyInformationWrapper> {
     return this.basicRequest<CompanyInformationWrapper>("companyinformation");
   }
 
   public async getAccounts(
     params: GetAccountsParams
-  ): Promise<{ data: AccountCollection; MetaInformation: any }> {
+  ): Promise<AccountCollection> {
     const queryParams = this.buildQueryParams(params);
     const endpoint = `accounts?${queryParams.toString()}`;
-    return this.basicRequest<{ data: AccountCollection; MetaInformation: any }>(
-      endpoint
-    );
+    return this.basicRequest<AccountCollection>(endpoint);
   }
 
   public async getAccountDetails(
