@@ -209,6 +209,7 @@ export interface GetInvoicesParams {
 }
 
 export interface Invoice {
+  "@url": string;
   Balance: number;
   Booked: boolean;
   Cancelled: boolean;
