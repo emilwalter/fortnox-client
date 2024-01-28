@@ -271,6 +271,10 @@ export interface GetSupplierInvoicesParams {
     | "unbooked"
     | "pendingpayment"
     | "authorizepending";
+  offset?: number;
+  limit?: number;
+  financialYear?: number;
+  lastmodified?: string;
 }
 
 export interface SupplierInvoicesCollection {
