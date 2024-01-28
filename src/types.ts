@@ -237,7 +237,7 @@ export interface Invoice {
   FinalPayDate: string; // ISO Date String
 }
 
-interface SupplierInvoice {
+export interface SupplierInvoice {
   "@url": string;
   Balance: string;
   Booked: boolean;
