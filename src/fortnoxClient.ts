@@ -13,6 +13,7 @@ import type {
   FortnoxClientOptions,
   GetAccountParams,
   GetAccountsParams,
+  GetFinancialYearsParams,
   GetInvoicesParams,
   GetSupplierInvoicesParams,
   GetVoucherDetailsParams,
@@ -67,8 +68,12 @@ class FortnoxClient {
     return this.basicRequest<CompanyInformationWrapper>("companyinformation");
   }
 
-  public async getFinancialYears(): Promise<FinancialYearsCollection> {
-    return this.basicRequest<FinancialYearsCollection>("financialyears");
+  public async getFinancialYears(
+    params: GetFinancialYearsParams
+  ): Promise<FinancialYearsCollection> {
+    const queryParams = this.buildQueryParams(params);
+    const endpoint = `financialyears?${queryParams.toString()}`;
+    return this.basicRequest<FinancialYearsCollection>(endpoint);
   }
 
   public async getAccounts(

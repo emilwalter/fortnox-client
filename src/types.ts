@@ -278,6 +278,10 @@ export interface GetSupplierInvoicesParams {
   lastmodified?: string;
 }
 
+export interface GetFinancialYearsParams {
+  date: string;
+}
+
 export interface SupplierInvoicesCollection {
   SupplierInvoices: SupplierInvoice[];
   MetaInformation: MetaInformation;
