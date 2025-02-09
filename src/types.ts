@@ -279,8 +279,9 @@ export interface GetSupplierInvoicesParams {
 }
 
 export interface GetFinancialYearsParams {
-  date: string;
+  date?: string;
 }
+
 
 export interface SupplierInvoicesCollection {
   SupplierInvoices: SupplierInvoice[];
