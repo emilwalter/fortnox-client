@@ -52,7 +52,7 @@ async function fetchVouchers() {
 async function fetchAccountDetails() {
   const account = await client.getAccountDetails({
     accountNumber: 1920,
-    financialYear: 2023,
+    financialYear: 7, // This needs to be the ID of the financial year
   });
   console.log(account);
 }
