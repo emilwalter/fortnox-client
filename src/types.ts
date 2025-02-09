@@ -65,7 +65,7 @@ export interface FinancialYear {
   FromDate: string;
   ToDate: string;
   AccountingMethod: string;
-  accountCharts: string;
+  AccountChartType: string;
 }
 
 export interface FinancialYearsCollection {
@@ -200,12 +200,12 @@ export interface GetInvoicesParams {
   yourordernumber?: string;
   credit?: string;
   sortby?:
-    | "customername"
-    | "customernumber"
-    | "documentnumber"
-    | "invoicedate"
-    | "ocr"
-    | "total";
+  | "customername"
+  | "customernumber"
+  | "documentnumber"
+  | "invoicedate"
+  | "ocr"
+  | "total";
 }
 
 export interface Invoice {
@@ -265,13 +265,13 @@ export interface SupplierInvoice {
 
 export interface GetSupplierInvoicesParams {
   filter?:
-    | "cancelled"
-    | "fullypaid"
-    | "unpaid"
-    | "unpaidoverdue"
-    | "unbooked"
-    | "pendingpayment"
-    | "authorizepending";
+  | "cancelled"
+  | "fullypaid"
+  | "unpaid"
+  | "unpaidoverdue"
+  | "unbooked"
+  | "pendingpayment"
+  | "authorizepending";
   offset?: number;
   limit?: number;
   financialYear?: number;
