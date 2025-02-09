@@ -1,6 +1,6 @@
 # @waltermedia/fortnox-client
 
-A opinionated client library for interacting with the Fortnox API, designed to help developers easily fetch data from Fortnox and integrate it into their applications.
+A TypeScript client library for interacting with the Fortnox API, featuring built-in rate limiting and error handling.
 
 ## Installation
 
@@ -16,45 +16,156 @@ Or using Yarn:
 yarn add @waltermedia/fortnox-client
 ```
 
+Or using PNPM
+
+```bash
+pnpm add @waltermedia/fortnox-client
+```
+
 ## Usage
 
-Import the FortnoxClient class from the package and create a new instance with your Fortnox API credentials:
-
-```
+```typescript
 import { FortnoxClient } from '@waltermedia/fortnox-client';
 
-const fortnoxClient = new FortnoxClient({
+const client = new FortnoxClient({
   accessToken: 'your-access-token',
 });
 
-// Fetch account data
-async function fetchAccounts() {
-  const accounts = await fortnoxClient.getAccounts(1000, 1999);
-  console.log(accounts);
-}
-
+// Example: Fetch vouchers
 async function fetchVouchers() {
-  const fromDate = '2023-01-01';
-  const toDate = '2023-12-31';
-  const vouchers = await fortnoxClient.getVouchers(fromDate, toDate, 500, true);
-  console.log(vouchers);
+  const vouchers = await client.getVouchers({
+    fromdate: '2023-01-01', // Note: parameter names are lowercase
+    todate: '2023-12-31',
+    limit: 100,
+    page: 1,
+  });
+
+  // Access the MetaInformation
+  const totalPages = vouchers.MetaInformation['@TotalPages'];
+  const currentPage = vouchers.MetaInformation['@CurrentPage'];
+  const totalResources = vouchers.MetaInformation['@TotalResources'];
+
+  console.log(vouchers.Vouchers); // Array of vouchers
 }
 
-fetchVouchers();
-fetchAccounts();
+// Example: Fetch account details
+async function fetchAccountDetails() {
+  const account = await client.getAccountDetails({
+    accountNumber: 1920,
+    financialYear: 2023,
+  });
+  console.log(account);
+}
 ```
 
-## Methods
+## Pagination
 
-Below are some of the primary methods available with the FortnoxClient:
+The Fortnox API uses page-based pagination. Each collection response includes MetaInformation:
 
+```typescript
+interface MetaInformation {
+  '@TotalPages': number;
+  '@CurrentPage': number;
+  '@TotalResources': number;
+}
 ```
-getAccounts(accountNumberFrom: number, accountNumberTo: number, financialYear?: number, limit?: number, paginate?: boolean): Promise<AccountCollection>
-getVoucherDetails(voucherSeries: string, voucherNumber: number): Promise<Voucher>
-getVoucherSeries(paginate?: boolean): Promise<VoucherSeriesCollection>
-getVouchers(fromDate?: string, toDate?: string, limit?: number, paginate?: boolean): Promise<VoucherCollection>
-getFinancialYears(paginate?: boolean): Promise<FinancialYearsCollection>
+
+Example of manual pagination:
+
+```typescript
+async function fetchAllVouchers() {
+  let currentPage = 1;
+  const results = [];
+  let hasMorePages = true;
+
+  while (hasMorePages) {
+    const response = await client.getVouchers({
+      fromdate: '2023-01-01',
+      todate: '2023-12-31',
+      limit: 100,
+      page: currentPage,
+    });
+
+    results.push(...response.Vouchers);
+
+    hasMorePages = currentPage < response.MetaInformation['@TotalPages'];
+    currentPage++;
+  }
+
+  return results;
+}
+```
+
+## Available Methods
+
+### Vouchers
+
+```typescript
+getVouchers(params: GetVouchersParams): Promise<VoucherCollection>
+getVoucherDetails(params: GetVoucherDetailsParams): Promise<DetailedVoucher>
+```
+
+### Accounts
+
+```typescript
+getAccounts(params: GetAccountsParams): Promise<AccountCollection>
+getAccountDetails(params: GetAccountParams): Promise<DetailedAccount>
+```
+
+### Invoices
+
+```typescript
+getInvoices(params: GetInvoicesParams): Promise<InvoiceCollection>
+getSupplierInvoices(params: GetSupplierInvoicesParams): Promise<SupplierInvoicesCollection>
+```
+
+### Other
+
+```typescript
 getCompanyInformation(): Promise<CompanyInformationWrapper>
+getFinancialYears(params: GetFinancialYearsParams): Promise<FinancialYearsCollection>
+getSIE(params: SIEParams): Promise<string>
 ```
 
-Note: The paginate parameter in the methods above, when set to true, fetches all pages of data. When set to false (default), it fetches only the first page.
+## Error Handling
+
+The client includes built-in error handling that wraps Fortnox API errors in a `FortnoxError` class:
+
+```typescript
+try {
+  const vouchers = await client.getVouchers({
+    fromDate: '2023-01-01',
+    toDate: '2023-12-31',
+  });
+} catch (error) {
+  if (error instanceof FortnoxError) {
+    console.error('Fortnox API Error:', error.message);
+    console.error('Status Code:', error.statusCode);
+    console.error('Error Code:', error.code);
+  }
+}
+```
+
+## Rate Limiting
+
+The client includes built-in rate limiting to prevent hitting Fortnox API limits:
+
+- Maximum 1 concurrent request
+- Minimum 250ms between requests
+
+## Types
+
+The package includes comprehensive TypeScript definitions for all Fortnox API responses and parameters. Import them as needed:
+
+```typescript
+import type {
+  VoucherCollection,
+  AccountCollection,
+  InvoiceCollection,
+  // etc...
+} from '@waltermedia/fortnox-client';
+```
+
+## License
+
+Commercial - See LICENSE file for details.
