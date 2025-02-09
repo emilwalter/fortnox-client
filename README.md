@@ -166,6 +166,55 @@ import type {
 } from '@waltermedia/fortnox-client';
 ```
 
+## Token Management
+
+The package includes a `TokenManager` class to handle OAuth token refresh flows:
+
+```typescript
+import { TokenManager } from '@waltermedia/fortnox-client';
+
+const tokenManager = new TokenManager(
+  'initial-access-token',
+  'initial-refresh-token',
+  new Date(/* expiration timestamp */),
+  'your-client-id',
+  'your-client-secret'
+);
+
+// Get fresh tokens
+const { accessToken, refreshToken, expiresIn, expiresAt } =
+  await tokenManager.getToken();
+```
+
+The TokenManager automatically:
+
+- Handles token refresh flows with the Fortnox OAuth API
+- Manages token expiration
+- Provides fresh access tokens when needed
+- Handles error cases like invalid refresh tokens
+
+Note: Store your client credentials securely and never expose them in client-side code.
+
 ## License
 
-Commercial - See LICENSE file for details.
+MIT License
+
+Copyright (c) 2024 Walter Media AB
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
