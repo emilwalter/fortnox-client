@@ -1,5 +1,6 @@
 import axios from "axios";
 import { FortnoxError } from "./fortnoxError";
+import { sanitizeErrorForLogging } from "./sanitizeError";
 
 class TokenManager {
   private accessToken: string;
@@ -83,7 +84,7 @@ class TokenManager {
         }
       }
 
-      console.error("Error refreshing access token:", error);
+      console.error("Error refreshing access token:", sanitizeErrorForLogging(error));
       throw error;
     }
   }

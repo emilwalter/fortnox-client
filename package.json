@@ -1,22 +1,39 @@
 {
   "name": "@waltermedia/fortnox-client",
-  "version": "0.13.0",
-  "description": "Opinionated Client for Fetching data from Fortnox",
+  "version": "0.14.0",
+  "description": "TypeScript client for the Fortnox API with rate limiting, OAuth token management, and security hardening",
   "private": false,
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsc",
-    "release": "npm version patch && npm run build && npm publish && git push origin --tags",
-    "release-minor": "npm version minor && npm run build && npm publish && git push origin --tags"
+    "release": "npm run build && npm version patch && npm publish && git push && git push --tags",
+    "release-minor": "npm run build && npm version minor && npm publish && git push && git push --tags"
   },
   "keywords": [
     "fortnox",
     "api",
-    "client"
+    "client",
+    "accounting",
+    "sweden"
   ],
   "author": "Emil Walter",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/emilwalter/fortnox-client.git"
+  },
+  "homepage": "https://github.com/emilwalter/fortnox-client#readme",
+  "bugs": {
+    "url": "https://github.com/emilwalter/fortnox-client/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "devDependencies": {
     "@types/node": "^20.8.10",
     "typescript": "^5.2.2"
@@ -24,9 +41,5 @@
   "dependencies": {
     "axios": "^1.6.0",
     "bottleneck": "^2.19.5"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/emilwalter/fortnox-client.git"
   }
 }

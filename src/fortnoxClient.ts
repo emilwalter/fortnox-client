@@ -2,6 +2,12 @@
 import axios, { AxiosError } from "axios";
 import Bottleneck from "bottleneck";
 import { FortnoxError } from "./fortnoxError";
+import { sanitizeErrorForLogging } from "./sanitizeError";
+import {
+  validateNumericPathParam,
+  validateSIEType,
+  validateVoucherSeries,
+} from "./validation";
 import type {
   Account,
   AccountCollection,
@@ -55,10 +61,15 @@ class FortnoxClient {
   public async getVoucherDetails(
     params: GetVoucherDetailsParams
   ): Promise<DetailedVoucher> {
+    const voucherSeries = validateVoucherSeries(params.voucherSeries);
+    const voucherNumber = validateNumericPathParam(
+      params.voucherNumber,
+      "voucherNumber"
+    );
     const queryParams = params.financialYear
       ? new URLSearchParams({ financialyear: params.financialYear.toString() })
       : "";
-    const endpoint = `vouchers/${params.voucherSeries}/${params.voucherNumber}${
+    const endpoint = `vouchers/${voucherSeries}/${voucherNumber}${
       queryParams ? `?${queryParams.toString()}` : ""
     }`;
     return this.basicRequest<DetailedVoucher>(endpoint);
@@ -87,11 +98,15 @@ class FortnoxClient {
   public async getAccountDetails(
     params: GetAccountParams
   ): Promise<DetailedAccount> {
+    const accountNumber = validateNumericPathParam(
+      params.accountNumber,
+      "accountNumber"
+    );
     const queryParams = new URLSearchParams();
     if (params.financialYear) {
       queryParams.append("financialyear", params.financialYear.toString());
     }
-    const endpoint = `accounts/${params.accountNumber}${
+    const endpoint = `accounts/${accountNumber}${
       queryParams.toString() ? `?${queryParams.toString()}` : ""
     }`;
     return this.basicRequest<DetailedAccount>(endpoint);
@@ -114,11 +129,12 @@ class FortnoxClient {
   }
 
   public async getSIE(params: SIEParams): Promise<string> {
+    const type = validateSIEType(params.type);
     const queryParams = new URLSearchParams();
     if (params.financialYear) {
       queryParams.append("financialyear", params.financialYear.toString());
     }
-    const endpoint = `sie/${params.type}${
+    const endpoint = `sie/${type}${
       queryParams.toString() ? `?${queryParams.toString()}` : ""
     }`;
     return this.basicRequest<string>(endpoint);
@@ -152,8 +168,8 @@ class FortnoxClient {
     });
   }
 
-  private handleError(error: any): never {
-    console.error(error); // Log the error to diagnose the issue
+  private handleError(error: unknown): never {
+    console.error(sanitizeErrorForLogging(error));
 
     if (axios.isAxiosError(error)) {
       const axiosError: AxiosError = error;
@@ -164,19 +180,28 @@ class FortnoxClient {
       const errorMessage =
         errorData?.ErrorInformation?.message || "Unknown Error";
       throw new FortnoxError(errorMessage, statusCode, errorData, axiosError);
-    } else if (error.response) {
+    }
+
+    const err = error as {
+      response?: { status?: number; data?: FortnoxAPIError };
+      request?: unknown;
+      message?: string;
+    };
+    if (err?.response) {
       const errorMessage =
-        error.response.data.ErrorInformation?.message || "Unknown Error";
+        err.response.data?.ErrorInformation?.message || "Unknown Error";
       throw new FortnoxError(
         errorMessage,
-        error.response.status,
-        error.response.data
+        err.response.status,
+        err.response.data
       );
-    } else if (error.request) {
-      throw new FortnoxError("No response received from Fortnox API");
-    } else {
-      throw new FortnoxError(error.message);
     }
+    if (err?.request) {
+      throw new FortnoxError("No response received from Fortnox API");
+    }
+    throw new FortnoxError(
+      err?.message ?? "Unknown error"
+    );
   }
 }
 

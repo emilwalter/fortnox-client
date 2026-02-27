@@ -1,9 +1,12 @@
 import { FortnoxAPIError } from "./types";
 import { AxiosError } from "axios";
+import { sanitizeAxiosResponse } from "./sanitizeError";
+
 export class FortnoxError extends Error {
   public error: number = 0;
   public code: number = 0;
-  public response?: AxiosError["response"];
+  /** Sanitized response (status, statusText, data only - no auth headers) */
+  public response?: { status?: number; statusText?: string; data?: unknown };
 
   constructor(
     public message: string,
@@ -20,8 +23,8 @@ export class FortnoxError extends Error {
       this.message = errorInfo.ErrorInformation.message;
     }
 
-    if (axiosError && axiosError.response) {
-      this.response = axiosError.response;
+    if (axiosError?.response) {
+      this.response = sanitizeAxiosResponse(axiosError.response);
     }
   }
 }
