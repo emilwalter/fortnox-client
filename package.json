@@ -1,6 +1,6 @@
 {
   "name": "@waltermedia/fortnox-client",
-  "version": "0.14.0",
+  "version": "0.15.0",
   "description": "TypeScript client for the Fortnox API with rate limiting, OAuth token management, and security hardening",
   "private": false,
   "main": "dist/index.js",
